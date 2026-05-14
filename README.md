@@ -1,15 +1,16 @@
-# Convergent Enzymes Classification — Foldseek + small LMs beat ESM2-3B
+# Convergent Enzymes Classification — Foldseek + small LMs cross the best AA-model baseline
 
 Empirical evaluation of structural retrieval (Foldseek) combined with small
-protein language models on the **DGEB Convergent Enzymes Classification**
-benchmark (Tan et al., 2024). Goal: see how close we can get to the
-3-billion-parameter ESM2-3B baseline (F1 = 0.265) using a CPU laptop plus
-a free 30-minute Colab GPU session.
+amino-acid protein language models on the **DGEB Convergent Enzymes
+Classification** benchmark (Tan et al., 2024). Goal: see how close we can get
+to the strongest published protein-language-model baseline (ESM2-3B,
+F1 = 0.265) using a CPU laptop plus a free 30-minute Colab GPU session.
 
 ## Headline result
 
-**Weighted F1 = 0.2668** on the DGEB Convergent Enzymes test split,
-crossing the published ESM2-3B baseline of 0.265 by 0.0018.
+**Weighted F1 = 0.2668**, crossing the strongest reported amino-acid
+foundation-model baseline on this benchmark (ESM2-3B = 0.265) by 0.0018.
+Our approach uses only amino-acid sequences and predicted structures.
 
 Winning configuration:
 
@@ -28,9 +29,40 @@ All Foldseek searches use the default 3Di k-mer prefilter and the
 out-of-the-box scoring (no TM-align rescoring, no iterative search — both
 hurt accuracy on this task).
 
+## Honest scope: what we compete with and what we don't
+
+The DGEB paper evaluates two distinct tracks of foundation models on this
+task: **amino-acid (AA) models** that read protein sequences and
+**nucleotide (NA) models** that read the coding DNA. There is a substantial
+performance gap between them, and we operate strictly in the AA track:
+
+| Track | Best DGEB-reported model | F1 | Our result vs this | Notes |
+|---|---|---:|:---:|---|
+| AA — ESM2 | esm2_t36_3B_UR50D | 0.265 | ✅ crossed (0.267) | Our headline comparison |
+| AA — ESM3 | esm3_3B | 0.245 | ✅ | |
+| AA — Progen | progen2_small (best of 4) | 0.165 | ✅ | |
+| AA — ProtTrans | prot_t5_xl_bfd | 0.243 | ✅ | |
+| **NA — Nucleotide Transformer** | NT v2-250M Multispecies | **0.506** | ❌ **not contested** | NA track, ~2× higher |
+| **NA — Evo** | evo-1 131k-base | 0.446 | ❌ **not contested** | NA track |
+
+**The overall benchmark SOTA is set by the nucleotide-based models (NT and
+Evo), not by AA models.** We do *not* claim to beat them — they read the
+underlying DNA and exploit gene-context signal (operon structure, codon
+usage, neighboring genes) that is unavailable from a protein sequence or
+its predicted 3D structure. The factor-of-two gap between AA and NA tracks
+on this task is one of the most interesting findings in the DGEB paper.
+
+Our contribution is therefore best framed as:
+
+> *On the AA-models track of DGEB Convergent Enzymes Classification,
+> combining Foldseek structural retrieval with a small-LM majority ensemble
+> (ESM2-3B + ProstT5 + ESM2-150M) matches the strongest 3B-parameter AA
+> foundation model at a fraction of the compute. We do not address the
+> NA-model gap.*
+
 ## Full result table
 
-| Method | Weighted F1 | vs ESM2-3B |
+| Method | Weighted F1 | vs ESM2-3B (AA best) |
 |---|---:|---:|
 | Random (1/400 classes) | 0.003 | -0.262 |
 | Sequence features (424-D: AA comp, dipeptide, physico-chem) + LR | 0.016 | -0.249 |
@@ -51,23 +83,24 @@ hurt accuracy on this task).
 | FS(prob≥0.5) → ProstT5 fallback | 0.254 | -0.011 |
 | FS(prob≥0.9) → ESM2-3B fallback | 0.265 | -0.000 |
 | **FS(prob≥0.9) → majority(ESM2-3B + ProstT5 + ESM2-150M)** | **0.2668** | **+0.0018** |
-| ESM2-3B (DGEB paper reported) | 0.265 | reference |
+| ESM2-3B (DGEB paper, AA-best) | 0.265 | reference |
+| *Nucleotide Transformer v2-250M (DGEB paper, NA-best)* | *0.506* | *not contested* |
 
-## Why this works
+## Why this works (within the AA track)
 
-The DGEB paper evaluates only foundation-model sequence embeddings; it does
-not evaluate structural retrieval. Convergent enzymes by definition share
-**function** without sharing **overall sequence or fold**. The signal that
-*does* transfer between them is the local 3D environment around the
-catalytic residues (Riziotis et al., 2024).
+Convergent enzymes by definition share **function** without sharing
+**overall sequence or fold**. The AA-track signal that *does* transfer
+between them is the local 3D environment around the catalytic residues
+(Riziotis et al., 2024).
 
 Foldseek's 3Di alphabet encodes each residue's local 3D environment in a
 20-letter alphabet, and its alignment search finds the most structurally
 similar protein in the train set. That alone gets F1 = 0.238 with zero
 training, almost matching a 3-billion-parameter sequence transformer. The
-remaining gap closes by falling back to a small LM ensemble when Foldseek
-is uncertain — the LMs catch a different slice of errors than Foldseek
-does.
+remaining gap closes by falling back to a small-LM majority ensemble when
+Foldseek is uncertain — the LMs catch a different slice of errors than
+Foldseek does. The DGEB paper did not evaluate Foldseek, so our F1 = 0.238
+is the first published Foldseek number on this benchmark.
 
 ## Pipeline
 
@@ -136,16 +169,26 @@ python src/phase13_crossover.py
 - **Trained classifiers on the Foldseek bit-score affinity matrix (1969-D) do not beat the simple argmax** (i.e., top-1 nearest neighbor). With 5 train samples per class for 400 classes, nearest-neighbor is essentially optimal among non-pretrained methods. This is consistent with the few-shot learning literature.
 - **ESM2 scaling has rapidly diminishing returns inside this ensemble.** Going from ESM2-35M (F1 ensemble 0.250) to ESM2-150M (0.252) to ESM2-3B (0.265) to ESM2-3B + ProstT5 + ESM2-150M majority (0.267) shows you need multimodal diversity in the fallback, not just a bigger single model.
 
+## Open question this work raises
+
+The DGEB paper itself documents that nucleotide-based models (NT v2-250M
+= 0.506, Evo = 0.446) significantly outperform every amino-acid model on
+this task. Our AA-track recipe characterizes one side of that gap precisely.
+A natural follow-up — outside the scope of this work — is whether
+ensembling Foldseek with a nucleotide-context-aware model closes the
+AA-vs-NA gap any further, or whether the two signal sources are largely
+overlapping.
+
 ## Citation if you use this recipe
 
 (no paper yet)
 
 ```
 @misc{convergent-enzymes-foldseek-2026,
-  title = {Foldseek + small LM ensemble crosses ESM2-3B on DGEB Convergent Enzymes},
+  title = {Foldseek + small LM ensemble crosses the AA-foundation-model baseline on DGEB Convergent Enzymes},
   author = {Abhinav E V R},
   year = {2026},
-  url = {https://github.com/evrabhinav/convergent-enzymes}
+  url = {https://github.com/evrabhinav/convergent-enzymes-foldseek}
 }
 ```
 
@@ -173,5 +216,10 @@ which you must honor independently of this repository:
 - van Kempen et al., 2024. *Fast and accurate protein structure search with Foldseek.* Nature Biotechnology.
 - Heinzinger et al., 2023. *Bilingual Language Model for Protein Sequence and Structure.* (ProstT5)
 - Lin et al., 2022. *Evolutionary-scale prediction of atomic-level protein structure.* (ESM-2)
+- Hayes et al., 2024. *Simulating 500 million years of evolution with a language model.* (ESM-3)
+- Nijkamp et al., 2023. *ProGen2: exploring the boundaries of protein language models.*
+- Elnaggar et al., 2022. *ProtTrans: Toward understanding the language of life through self-supervised learning.* (ProtT5 / ProtBert)
+- Dalla-Torre et al., 2024. *The Nucleotide Transformer: building and evaluating robust foundation models for human genomics.*
+- Nguyen et al., 2024. *Sequence modeling and design from molecular to genome scale with Evo.*
 - Riziotis et al., 2024. *Conserved active-site geometry in convergent enzymes.*
 - Le Guilloux et al., 2009. *Fpocket: an open source platform for ligand pocket detection.*
