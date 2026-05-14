@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Foldseek + small LM ensemble crosses ESM2-3B on DGEB Convergent Enzymes"
+abstract: >
+  Empirical evaluation of structural retrieval (Foldseek) combined with small
+  protein language models on the DGEB Convergent Enzymes Classification
+  benchmark. Achieves weighted F1 = 0.2668, crossing the published ESM2-3B
+  baseline of 0.265, using a CPU laptop plus ~30 min of free Colab T4 GPU time.
+authors:
+  - given-names: Abhinav
+    family-names: E V R
+    email: evrabhinav@gmail.com
+    affiliation: independent
+date-released: 2026-05-14
+license: MIT
+type: software
+repository-code: "https://github.com/evrabhinav/convergent-enzymes-foldseek"
+url: "https://github.com/evrabhinav/convergent-enzymes-foldseek"
+keywords:
+  - protein function prediction
+  - convergent enzymes
+  - Foldseek
+  - ESM2
+  - ProstT5
+  - DGEB
+  - structural bioinformatics
+  - few-shot classification
+preferred-citation:
+  type: software
+  title: "Foldseek + small LM ensemble crosses ESM2-3B on DGEB Convergent Enzymes"
+  authors:
+    - given-names: Abhinav
+      family-names: E V R
+  year: 2026
+  url: "https://github.com/evrabhinav/convergent-enzymes-foldseek"

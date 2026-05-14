@@ -149,6 +149,24 @@ python src/phase13_crossover.py
 }
 ```
 
+## License
+
+This repository is released under the [MIT License](LICENSE) — you're free to
+use, modify, and redistribute, including commercially, as long as the
+copyright notice is preserved. If you use it, see [CITATION.cff](CITATION.cff)
+or the "Cite this repository" button on the GitHub sidebar.
+
+Note that the upstream tools and models we use have their own licenses,
+which you must honor independently of this repository:
+
+- **Foldseek**: GPL-3.0 (van Kempen et al., 2024)
+- **ESM-2** (35M / 150M / 3B): MIT (Meta AI)
+- **ProstT5**: CC-BY-NC-SA 4.0 (Heinzinger et al., 2023) — note the
+  non-commercial clause
+- **fpocket**: GPL-2.0 (Le Guilloux et al., 2009)
+- **AlphaFold predicted structures**: CC-BY 4.0 (DeepMind / EMBL-EBI)
+- **DGEB dataset**: see the [dataset card on HuggingFace](https://huggingface.co/datasets/tattabio/convergent_enzymes)
+
 ## References
 
 - Tan et al., 2024. *The Diverse Genomic Embedding Benchmark for Functional Evaluation of Protein Models* (DGEB). [HuggingFace dataset](https://huggingface.co/datasets/tattabio/convergent_enzymes).
