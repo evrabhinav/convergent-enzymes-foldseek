@@ -129,37 +129,101 @@ is the first published Foldseek number on this benchmark.
 - Colab T4 GPU for ESM2-3B and ProstT5 embeddings (~30 min total, free tier)
 - Total wall-clock: roughly 8 hours including all failed experiments
 
-## Reproducing
+## Repository layout
+
+This is a **research log**, not a polished library — 24 scripts under `src/`
+spanning 13 experimental phases, including several that produced negative
+results (kept on purpose; see the "Negative results" section). To navigate:
+
+- **Want to reproduce the headline F1 = 0.2668?** Follow "Minimal reproduction"
+  below — it's ~6 scripts.
+- **Want to see a specific experiment?** Use the "Pipeline" table above — each
+  row maps a phase to its script(s).
+- `src/run_all.py` chains the structural-feature pipeline (phases 2-4) for
+  convenience.
+
+## Minimal reproduction (headline result only)
+
+These are the only scripts on the critical path to F1 = 0.2668.
 
 ```bash
-# 1. Install dependencies
+# 0. Install dependencies
 pip install -r requirements.txt
 
-# 2. Download dataset + AlphaFold structures (Phase 1, ~30 min over the network)
+# 1. Dataset + AlphaFold structures        (~30 min, network-bound)
 python src/phase1_load_and_download.py
 
-# 3. Hand-crafted structural features (Phase 2, ~30 min)
-python src/phase2_features.py
-
-# 4. Sequence baseline (Phase 3)
-python src/sequence_features.py
-python src/phase3_train_eval.py
-
-# 5. Foldseek in WSL Ubuntu
+# 2. Foldseek in WSL Ubuntu                (one-time setup)
 #    wsl --install -d Ubuntu-24.04
-#    inside WSL: install foldseek (binary release from foldseek.com)
-#    See src/phase5_foldseek.py for the easy-search command we used.
+#    inside WSL: install foldseek (linux binary release from foldseek.com)
+#    then build DBs + run easy-search — see the commands inside
+#    src/phase5_foldseek.py. This produces foldseek_workdir/hits.tsv.
 
-# 6. ESM2-35M / 150M embeddings (CPU, slow; ~20 min and ~3 hr respectively)
-python src/phase6_esm2.py --model facebook/esm2_t12_35M_UR50D
+# 3. ESM2-150M embeddings                  (CPU, ~3 hr)
 python src/phase6_esm2.py --model facebook/esm2_t30_150M_UR50D
 
-# 7. ESM2-3B + ProstT5 embeddings on a Colab T4 GPU (paste the cells in this README)
-#    Then drop the resulting .npz files into features/.
+# 4. ESM2-3B + ProstT5 embeddings          (run on a free Colab T4 GPU,
+#    ~30 min total — copy-paste the two cells given below in this README,
+#    then drop the resulting .npz files into features/)
 
-# 8. Final crossover evaluation
+# 5. Final crossover ensemble              (<5 min)
+python src/phase13_crossover.py
+#    -> prints F1 = 0.2668, writes results/phase13_crossover_results.csv
+#       and charts/phase13_final.png
+```
+
+## Full pipeline (all 13 phases, including negative results)
+
+```bash
+pip install -r requirements.txt
+
+# Phase 1 — dataset + structures
+python src/phase1_load_and_download.py
+
+# Phases 2-4 — hand-crafted structural features, sequence baseline, combined
+python src/run_all.py                       # or run phase2/3/4 + sequence_features individually
+
+# Phase 5 — Foldseek (needs WSL + foldseek installed; see phase5_foldseek.py)
+#   build DBs, easy-search, then:
+python src/phase5_vote.py                    # top-k vote evaluation
+python src/phase5b_tier_a.py                 # TM-align rescoring sweep (negative)
+python src/phase5c_layered.py                # layered fallback (neutral)
+
+# Phase 6 — ESM2-35M / 150M embeddings + ensemble
+python src/phase6_esm2.py --model facebook/esm2_t12_35M_UR50D
+python src/phase6_esm2.py --model facebook/esm2_t30_150M_UR50D
+python src/phase6_eval_ensemble.py --matrix features/esm2_35m_matrix.npz --tag esm2_35m
+python src/phase6_eval_ensemble.py --matrix features/esm2_t30_150M_matrix.npz --tag esm2_t30_150M
+
+# Phase 7 — fpocket pocket-geometry features (negative result; needs fpocket in WSL)
+python src/phase7_pocket_features.py
+python src/phase7_eval.py
+
+# Phase 8 — Foldseek-affinity classifier (does not beat top-1)
+python src/phase8_affinity.py
+
+# Phase 9 — discrete catalytic-motif experiments (all negative)
+python src/phase9_motif.py
+python src/phase9b_spatial_motif.py
+python src/phase9c_joint_motif.py
+
+# Phase 10 — ProstT5 (run embeddings on Colab, then:)
+python src/phase10_eval.py
+
+# Phase 11 — multi-model ensembles / concatenation
+python src/phase11_multimodel.py
+
+# Phase 12 — ESM2-3B (embeddings on Colab, then:)
+python src/phase12_esm3b_eval.py
+
+# Phase 13 — final crossover ensemble -> F1 = 0.2668
 python src/phase13_crossover.py
 ```
+
+Per-phase outputs land in `results/` (CSVs + text summaries) and `charts/`
+(PNG comparison plots). Pre-computed feature matrices are committed under
+`features/`, so phases 6+ can be re-evaluated without re-running the slow
+embedding steps.
 
 ## Negative results worth knowing about
 
