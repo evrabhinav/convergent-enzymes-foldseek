@@ -1,0 +1,14 @@
+Phase 12 — ESM2-3B + Foldseek
+==================================================
+
+  Sequence (424)                                     F1 = 0.0160
+  Structural feat. (100)                             F1 = 0.0600
+  ESM2-35M LR                                        F1 = 0.1610
+  Foldseek top-1                                     F1 = 0.2383
+  FS + ESM2-150M                                     F1 = 0.2520
+  FS + ProstT5                                       F1 = 0.2543
+  ESM2-3B alone (LogReg-C1)                          F1 = 0.1882
+  BEST: FS + ESM2-3B (Foldseek(prob>=0.9) > ESM2-3B) F1 = 0.2646
+  ESM2-3B (DGEB paper)                               F1 = 0.2650
+
+Crossed 0.265: no

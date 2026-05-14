@@ -1,0 +1,16 @@
+Phase 11 — multi-model
+========================================
+                               method  weighted_f1
+              FS(prob>=0.5) > ProstT5     0.254250
+               FS(prob>=0.3) > CAT-LR     0.252667
+               FS(prob>=0.5) > CAT-LR     0.251417
+FS(prob>=0.3) > MAJ(35M+150M+ProstT5)     0.249667
+               FS(prob>=0.7) > CAT-LR     0.248917
+             FS(prob>=0.5) > ESM2-35M     0.248417
+            FS(prob>=0.5) > ESM2-150M     0.248333
+FS(prob>=0.5) > MAJ(35M+150M+ProstT5)     0.247833
+FS(prob>=0.7) > MAJ(35M+150M+ProstT5)     0.244500
+                         CAT-2144D LR     0.170917
+                           ProstT5 LR     0.170881
+                          ESM2-35M LR     0.160839
+                         ESM2-150M LR     0.139423

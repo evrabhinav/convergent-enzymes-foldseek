@@ -1,0 +1,19 @@
+# Core
+numpy
+pandas
+scikit-learn
+matplotlib
+tqdm
+
+# HuggingFace + protein LMs
+datasets
+huggingface_hub
+transformers
+sentencepiece
+
+# Structures
+biopython
+pydssp                     # pure-Python DSSP-equivalent (avoids mkdssp on Windows)
+
+# PyTorch (CPU build is fine for everything except ESM2-3B / ProstT5, which we ran on Colab)
+torch

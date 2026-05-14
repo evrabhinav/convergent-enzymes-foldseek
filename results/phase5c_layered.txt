@@ -1,0 +1,12 @@
+Tier A layered classifier
+========================================
+               method  weighted_f1  n_predicted
+     foldseek_v1_only     0.238333          387
+     v1 + rf_fallback     0.238333          391
+     v1 + v2_fallback     0.238333          391
+v1 + v2 + rf_fallback     0.238333          391
+     foldseek_v2_only     0.228708          391
+     v2 + rf_fallback     0.228708          391
+              rf_only     0.054917          391
+
+BEST: foldseek_v1_only  F1 = 0.2383

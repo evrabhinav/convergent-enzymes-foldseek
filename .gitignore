@@ -1,0 +1,37 @@
+# --- exclude project-local AI config / memory ---
+.claude/
+CLAUDE.md
+.cursor/
+.continue/
+
+# --- exclude huge AlphaFold PDB store; regenerate with src/phase1_load_and_download.py ---
+structures/
+
+# --- python caches / build artifacts ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# --- foldseek heavy/regeneratable files ---
+foldseek_workdir/hits_train_train.tsv
+foldseek_workdir/hits_v2.tsv
+foldseek_workdir/tmp/
+foldseek_workdir/trainDB*
+foldseek_workdir/testDB*
+
+# --- editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- logs / temp ---
+*.log
+*.tmp
+nohup.out

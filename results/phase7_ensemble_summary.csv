@@ -1,0 +1,7 @@
+ensemble,weighted_f1
+Foldseek > Pocket fallback,0.23799999999999996
+Foldseek(prob>=0.3) > Pocket,0.22983333333333333
+Foldseek(prob>=0.5) > Pocket,0.23070454545454544
+Foldseek(prob>=0.7) > Pocket,0.2208712121212121
+Foldseek(prob>=0.3) > majority(Pocket+ESM2),0.22983333333333333
+Foldseek > majority(Pocket+ESM2) fallback,0.23799999999999996

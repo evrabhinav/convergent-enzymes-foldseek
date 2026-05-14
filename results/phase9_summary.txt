@@ -1,0 +1,16 @@
+Phase 9 — 3Di motif classifier
+==================================================
+
+BEST: k=4 min_members=3 min_enrichment=10.0  F1=0.0725
+
+Top 10 configurations:
+  k=4 min_mem=3 enr=10.0  classes=387  pred=391  F1=0.0725
+  k=5 min_mem=3 enr=10.0  classes=387  pred=391  F1=0.0721
+  k=4 min_mem=4 enr=10.0  classes=347  pred=391  F1=0.0607
+  k=6 min_mem=3 enr=10.0  classes=383  pred=391  F1=0.0558
+  k=5 min_mem=3 enr= 5.0  classes=393  pred=391  F1=0.0549
+  k=5 min_mem=4 enr= 5.0  classes=362  pred=391  F1=0.0485
+  k=5 min_mem=4 enr=10.0  classes=339  pred=391  F1=0.0484
+  k=4 min_mem=3 enr= 5.0  classes=395  pred=391  F1=0.0479
+  k=6 min_mem=3 enr= 5.0  classes=390  pred=391  F1=0.0400
+  k=4 min_mem=4 enr= 5.0  classes=368  pred=391  F1=0.0376

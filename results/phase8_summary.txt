@@ -1,0 +1,19 @@
+Phase 8 — Foldseek-affinity classifier
+==================================================
+
+  argmax-on-affinity (sanity)                             F1 = 0.2367
+  LR-l2 (raw bits)                                        F1 = 0.2125
+  LinearSVC (log1p bits + ESM2-35M)                       F1 = 0.1343
+  LinearSVC (log1p)                                       F1 = 0.1334
+  RF-500 (raw bits)                                       F1 = 0.1213
+  LR-l2 (log1p bits)                                      F1 = 0.0353
+  LR-l2 (log1p bits + ESM2-35M)                           F1 = 0.0353
+
+Best: argmax-on-affinity (sanity)  F1 = 0.2367
+  Sequence (424)                                          F1 = 0.0160
+  Structural feat. (100)                                  F1 = 0.0600
+  ESM2-35M LR                                             F1 = 0.1610
+  Foldseek top-1                                          F1 = 0.2383
+  FS + ESM2-150M ensemble                                 F1 = 0.2520
+  Affinity best (argmax-on-affinity (sanity))             F1 = 0.2367
+  ESM2-3B (DGEB)                                          F1 = 0.2650

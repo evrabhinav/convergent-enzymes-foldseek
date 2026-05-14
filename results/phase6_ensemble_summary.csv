@@ -1,0 +1,8 @@
+ensemble,weighted_f1
+Foldseek > ESM2(best) fallback,0.23891666666666667
+Foldseek(prob>=0.3) > ESM2,0.25025
+Foldseek(prob>=0.5) > ESM2,0.24841666666666665
+Foldseek(prob>=0.7) > ESM2,0.24591666666666664
+Foldseek(prob>=0.9) > ESM2,0.24616666666666667
+Agreement: prefer Foldseek on disagree,0.23891666666666667
+Agreement: prefer ESM2 on disagree,0.1608392857142857

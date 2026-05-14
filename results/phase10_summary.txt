@@ -1,0 +1,11 @@
+Phase 10 — ProstT5
+==================================================
+
+  Sequence (424)                                     F1 = 0.0160
+  Structural feat. (100)                             F1 = 0.0600
+  ESM2-35M LR                                        F1 = 0.1610
+  Foldseek top-1                                     F1 = 0.2383
+  ESM2-150M + Foldseek                               F1 = 0.2520
+  ProstT5 best alone (LogReg-C1)                     F1 = 0.1709
+  BEST ensemble (Foldseek(prob>=0.5) > ProstT5)      F1 = 0.2543
+  ESM2-3B (DGEB)                                     F1 = 0.2650

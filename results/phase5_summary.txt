@@ -1,0 +1,20 @@
+Convergent Enzymes Classification — final summary
+==================================================
+
+  Random (1/400)                      F1 = 0.0025
+  Sequence (424)                      F1 = 0.0160
+  Structural feat. (100)              F1 = 0.0600
+  Foldseek-top1-bits                  F1 = 0.2446
+  ESM2-3B (DGEB)                      F1 = 0.2650
+
+Foldseek top results (per k, weight):
+  k= 1 weight=bits        F1=0.2446  cov=0.968
+  k= 1 weight=prob        F1=0.2446  cov=0.968
+  k= 1 weight=lddt        F1=0.2446  cov=0.968
+  k= 1 weight=alntmscore  F1=0.2446  cov=0.968
+  k= 1 weight=uniform     F1=0.2446  cov=0.968
+  k= 3 weight=alntmscore  F1=0.2426  cov=0.968
+  k= 3 weight=bits        F1=0.2416  cov=0.968
+  k= 3 weight=lddt        F1=0.2413  cov=0.968
+  k= 3 weight=uniform     F1=0.2403  cov=0.968
+  k= 3 weight=prob        F1=0.2399  cov=0.968

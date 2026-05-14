@@ -1,0 +1,14 @@
+Phase 7 results (pocket features)
+==================================================
+
+Best pocket classifier: Pocket RF-500  F1 = 0.0192
+Best ensemble:          Foldseek > Pocket fallback  F1 = 0.2380
+
+  Sequence (424)                                          F1 = 0.0160
+  Structural feat. (100)                                  F1 = 0.0600
+  ESM2-35M LR                                             F1 = 0.1610
+  Foldseek top-1                                          F1 = 0.2383
+  FS + ESM2 ensemble                                      F1 = 0.2502
+  Pocket best (Pocket RF-500)                             F1 = 0.0192
+  BEST Phase 7 ensemble (Foldseek > Pocket fallback)      F1 = 0.2380
+  ESM2-3B (DGEB)                                          F1 = 0.2650

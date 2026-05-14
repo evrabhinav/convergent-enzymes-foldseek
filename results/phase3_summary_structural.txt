@@ -1,0 +1,23 @@
+Convergent Enzymes Classification - structural features
+==================================================
+Train: (1969, 100)  Test: (391, 100)  (dropped 0 unseen-class rows)
+Best model on all features: RandomForest-100 = 0.0373
+
+Baselines:
+  sequence_424 (yours)      F1 = 0.0160
+  ESM2-3B (DGEB)            F1 = 0.2650
+
+All-features per-model:
+  SVM-rbf-C1                F1 = 0.0189
+  RandomForest-100          F1 = 0.0373
+  LogReg-C1                 F1 = 0.0290
+  kNN-1                     F1 = 0.0217
+  kNN-3                     F1 = 0.0172
+  kNN-5                     F1 = 0.0087
+
+Best per group (single-group ablation):
+  aa         best = LogReg-C1                 F1 = 0.0175
+  aa_ss      best = SVM-rbf-C1                F1 = 0.0213
+  contact    best = RandomForest-100          F1 = 0.0471
+  geom       best = kNN-1                     F1 = 0.0217
+  ss         best = RandomForest-100          F1 = 0.0228

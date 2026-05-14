@@ -1,0 +1,13 @@
+Tier A combined results
+==================================================
+
+BEST: fs_k3_lddt_p0.3  F1 = 0.2362
+  k=3, weight=lddt, min_prob=0.3, fallback=none
+  coverage: foldseek=331, rf_fallback=0, none=69
+
+  Random (1/400)                                F1 = 0.0025
+  Sequence (424)                                F1 = 0.0160
+  Structural feat. (100)                        F1 = 0.0600
+  Foldseek-top1 (Phase 5a)                      F1 = 0.2446
+  Foldseek tier-A best (fs_k3_lddt_p0.3)        F1 = 0.2362
+  ESM2-3B (DGEB)                                F1 = 0.2650

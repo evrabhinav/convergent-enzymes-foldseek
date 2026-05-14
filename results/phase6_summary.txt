@@ -1,0 +1,12 @@
+Final comparison
+==================================================
+Best ESM2 classifier: ESM2 LogReg-C1 F1 = 0.1608
+Best ensemble:        Foldseek(prob>=0.3) > ESM2 F1 = 0.2502
+
+All methods:
+  Sequence (424)                                     F1 = 0.0160
+  Structural feat. (100)                             F1 = 0.0600
+  Foldseek top-1 (Phase 5a)                          F1 = 0.2383
+  ESM2-35M best (ESM2 LogReg-C1)                     F1 = 0.1608
+  BEST ensemble (Foldseek(prob>=0.3) > ESM2)         F1 = 0.2502
+  ESM2-3B (DGEB)                                     F1 = 0.2650

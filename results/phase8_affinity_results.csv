@@ -1,0 +1,8 @@
+method,F1
+LR-l2 (raw bits),0.21249999999999997
+LR-l2 (log1p bits),0.035333333333333335
+LinearSVC (log1p),0.13341666666666666
+RF-500 (raw bits),0.12133333333333333
+argmax-on-affinity (sanity),0.23666666666666664
+LR-l2 (log1p bits + ESM2-35M),0.035333333333333335
+LinearSVC (log1p bits + ESM2-35M),0.13425
