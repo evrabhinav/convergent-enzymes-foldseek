@@ -141,6 +141,8 @@ results (kept on purpose; see the "Negative results" section). To navigate:
   row maps a phase to its script(s).
 - `src/run_all.py` chains the structural-feature pipeline (phases 2-4) for
   convenience.
+- `colab/` holds the two GPU embedding scripts (ESM2-3B, ProstT5) that were
+  run on a free Colab T4 — the rest of the pipeline runs on a CPU laptop.
 
 ## Minimal reproduction (headline result only)
 
@@ -163,8 +165,12 @@ python src/phase1_load_and_download.py
 python src/phase6_esm2.py --model facebook/esm2_t30_150M_UR50D
 
 # 4. ESM2-3B + ProstT5 embeddings          (run on a free Colab T4 GPU,
-#    ~30 min total — copy-paste the two cells given below in this README,
-#    then drop the resulting .npz files into features/)
+#    ~30 min total). Paste these two files into a Colab T4 notebook,
+#    one at a time, and move the downloaded .npz files into features/:
+#       colab/esm2_3b_embeddings_colab.py     -> features/esm2_3b_matrix.npz
+#       colab/prostT5_embeddings_colab.py     -> features/prostT5_aa_matrix.npz
+#    (CPU-side equivalents exist in src/ but are impractically slow for
+#     these two models — see the file headers.)
 
 # 5. Final crossover ensemble              (<5 min)
 python src/phase13_crossover.py
@@ -207,13 +213,15 @@ python src/phase9_motif.py
 python src/phase9b_spatial_motif.py
 python src/phase9c_joint_motif.py
 
-# Phase 10 — ProstT5 (run embeddings on Colab, then:)
+# Phase 10 — ProstT5 (run colab/prostT5_embeddings_colab.py on a Colab GPU,
+#   move features/prostT5_aa_matrix.npz into place, then:)
 python src/phase10_eval.py
 
 # Phase 11 — multi-model ensembles / concatenation
 python src/phase11_multimodel.py
 
-# Phase 12 — ESM2-3B (embeddings on Colab, then:)
+# Phase 12 — ESM2-3B (run colab/esm2_3b_embeddings_colab.py on a Colab GPU,
+#   move features/esm2_3b_matrix.npz into place, then:)
 python src/phase12_esm3b_eval.py
 
 # Phase 13 — final crossover ensemble -> F1 = 0.2668
