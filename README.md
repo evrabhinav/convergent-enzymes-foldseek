@@ -111,7 +111,8 @@ is the first published Foldseek number on this benchmark.
 | 3 | [src/phase3_train_eval.py](src/phase3_train_eval.py) | Train SVM/RF/LR/kNN on structural features; group ablation; baseline charts. |
 | sequence baseline | [src/sequence_features.py](src/sequence_features.py) | 424-D sequence baseline (AA composition + dipeptide frequencies + 4 physicochemical features). |
 | 4 | [src/phase4_combined.py](src/phase4_combined.py) | Concatenate sequence + structural features. |
-| 5 | [src/phase5_foldseek.py](src/phase5_foldseek.py), [src/phase5_vote.py](src/phase5_vote.py) | Build Foldseek DBs from train/test PDBs; easy-search; top-k weighted vote. |
+| structure organizing | [src/organize_structures.py](src/organize_structures.py) | Hard-link downloaded PDBs into `structures/train/` and `structures/test/` (needed by Foldseek and fpocket). |
+| 5 | [wsl/run_foldseek.sh](wsl/run_foldseek.sh), [src/phase5_foldseek.py](src/phase5_foldseek.py), [src/phase5_vote.py](src/phase5_vote.py) | Build Foldseek DBs, easy-search test-vs-train, extract 3Di FASTAs (WSL); top-k weighted vote (Python). |
 | 5b–5c | [src/phase5b_tier_a.py](src/phase5b_tier_a.py), [src/phase5c_layered.py](src/phase5c_layered.py) | Foldseek hyperparameter sweep (TM-align rescoring, iterative search, looser e-value) — all neutral or negative. |
 | 6 | [src/phase6_esm2.py](src/phase6_esm2.py), [src/phase6_eval_ensemble.py](src/phase6_eval_ensemble.py) | ESM2-35M / 150M embeddings + Foldseek-confidence-gated ensemble. |
 | 7 | [src/phase7_pocket_features.py](src/phase7_pocket_features.py), [src/phase7_eval.py](src/phase7_eval.py) | fpocket pocket-geometry features (negative result). |
@@ -143,6 +144,8 @@ results (kept on purpose; see the "Negative results" section). To navigate:
   convenience.
 - `colab/` holds the two GPU embedding scripts (ESM2-3B, ProstT5) that were
   run on a free Colab T4 — the rest of the pipeline runs on a CPU laptop.
+- `wsl/` holds the WSL-side shell scripts (Foldseek + fpocket install and
+  the exact search/extraction commands) — see `wsl/README.md`.
 
 ## Minimal reproduction (headline result only)
 
@@ -154,12 +157,14 @@ pip install -r requirements.txt
 
 # 1. Dataset + AlphaFold structures        (~30 min, network-bound)
 python src/phase1_load_and_download.py
+python src/organize_structures.py          # makes structures/train, structures/test
 
-# 2. Foldseek in WSL Ubuntu                (one-time setup)
+# 2. Foldseek in WSL Ubuntu                (one-time setup + ~3 min search)
 #    wsl --install -d Ubuntu-24.04
-#    inside WSL: install foldseek (linux binary release from foldseek.com)
-#    then build DBs + run easy-search — see the commands inside
-#    src/phase5_foldseek.py. This produces foldseek_workdir/hits.tsv.
+#    wsl -d Ubuntu-24.04 -u root -- bash wsl/install_tools.sh
+#    wsl -d Ubuntu-24.04 -u root -- bash wsl/run_foldseek.sh "/mnt/c/<path>"
+#    -> produces foldseek_workdir/hits.tsv + the 3Di FASTAs
+#    See wsl/README.md for the full WSL workflow.
 
 # 3. ESM2-150M embeddings                  (CPU, ~3 hr)
 python src/phase6_esm2.py --model facebook/esm2_t30_150M_UR50D
@@ -185,12 +190,14 @@ pip install -r requirements.txt
 
 # Phase 1 — dataset + structures
 python src/phase1_load_and_download.py
+python src/organize_structures.py            # hard-link PDBs into train/ test/ subdirs
 
 # Phases 2-4 — hand-crafted structural features, sequence baseline, combined
 python src/run_all.py                       # or run phase2/3/4 + sequence_features individually
 
-# Phase 5 — Foldseek (needs WSL + foldseek installed; see phase5_foldseek.py)
-#   build DBs, easy-search, then:
+# Phase 5 — Foldseek (run the WSL scripts first; see wsl/README.md)
+#   wsl/install_tools.sh   -> installs foldseek + fpocket
+#   wsl/run_foldseek.sh    -> hits.tsv + 3Di FASTAs
 python src/phase5_vote.py                    # top-k vote evaluation
 python src/phase5b_tier_a.py                 # TM-align rescoring sweep (negative)
 python src/phase5c_layered.py                # layered fallback (neutral)
@@ -201,7 +208,8 @@ python src/phase6_esm2.py --model facebook/esm2_t30_150M_UR50D
 python src/phase6_eval_ensemble.py --matrix features/esm2_35m_matrix.npz --tag esm2_35m
 python src/phase6_eval_ensemble.py --matrix features/esm2_t30_150M_matrix.npz --tag esm2_t30_150M
 
-# Phase 7 — fpocket pocket-geometry features (negative result; needs fpocket in WSL)
+# Phase 7 — fpocket pocket-geometry features (negative result)
+#   first: wsl -d Ubuntu-24.04 -u root -- bash wsl/run_fpocket.sh
 python src/phase7_pocket_features.py
 python src/phase7_eval.py
 
