@@ -19,9 +19,18 @@
 #
 # Per-protein forward on T4: ~0.5-1 s. Full dataset: ~20-40 min.
 
-# transformers 5.x broke NT v2's custom config (no `rope_theta` attribute
-# on EsmConfig). Pin to 4.46.x which still supports the NT remote-code path.
-# !pip install -q transformers==4.46.3 datasets
+# NT v2's remote `esm_config.py` reads attributes (rope_theta, rope_scaling,
+# max_position_embeddings) that recent transformers EsmConfig does not expose
+# by default. We monkey-patch them onto EsmConfig BEFORE loading NT so that
+# the model loads cleanly regardless of transformers version.
+# !pip install -q --upgrade transformers datasets
+
+from transformers.models.esm.configuration_esm import EsmConfig
+if not hasattr(EsmConfig, "rope_theta"):
+    EsmConfig.rope_theta = 10000.0
+for attr, default in [("rope_scaling", None), ("max_position_embeddings", 2050)]:
+    if not hasattr(EsmConfig, attr):
+        setattr(EsmConfig, attr, default)
 
 import time, numpy as np, pandas as pd, torch
 from tqdm.auto import tqdm
