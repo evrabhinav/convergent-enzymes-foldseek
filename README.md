@@ -42,7 +42,7 @@ performance gap between them, and we operate strictly in the AA track:
 | AA — ESM3 | esm3_3B | 0.245 | ✅ | |
 | AA — Progen | progen2_small (best of 4) | 0.165 | ✅ | |
 | AA — ProtTrans | prot_t5_xl_bfd | 0.243 | ✅ | |
-| **NA — Nucleotide Transformer** | NT v2-250M Multispecies | **0.506** | ❌ **not contested** | NA track, ~2× higher |
+| **NA — Nucleotide Transformer** | NT v2-250M Multispecies | **0.506** | ❌ **not contested** | NA track, ~2× higher. See Phase 14 below — we attempted the NA track with NT v1 2.5B and it did not help in our pipeline. |
 | **NA — Evo** | evo-1 131k-base | 0.446 | ❌ **not contested** | NA track |
 
 **The overall benchmark SOTA is set by the nucleotide-based models (NT and
@@ -83,6 +83,9 @@ Our contribution is therefore best framed as:
 | FS(prob≥0.5) → ProstT5 fallback | 0.254 | -0.011 |
 | FS(prob≥0.9) → ESM2-3B fallback | 0.265 | -0.000 |
 | **FS(prob≥0.9) → majority(ESM2-3B + ProstT5 + ESM2-150M)** | **0.2668** | **+0.0018** |
+| NT v1 2.5B Multispecies alone (LR, our pipeline) | 0.008 | -0.257 |
+| FS(prob≥0.9) → NT v1 2.5B fallback | 0.226 | -0.039 |
+| FS(prob≥0.9) → majority(AA-3 + NT v1) — Phase 14 best | 0.264 | -0.001 |
 | ESM2-3B (DGEB paper, AA-best) | 0.265 | reference |
 | *Nucleotide Transformer v2-250M (DGEB paper, NA-best)* | *0.506* | *not contested* |
 
@@ -122,6 +125,7 @@ is the first published Foldseek number on this benchmark.
 | 11 | [src/phase11_multimodel.py](src/phase11_multimodel.py) | Multi-model fallback ensembles and concatenations. |
 | 12 | [src/phase12_esm3b_eval.py](src/phase12_esm3b_eval.py) | ESM2-3B embeddings (Colab) + Foldseek ensemble; ties 0.265. |
 | 13 | [src/phase13_crossover.py](src/phase13_crossover.py) | Final crossover: Foldseek + 3-model majority fallback. **F1 = 0.2668.** |
+| 14 | [src/fetch_dna.py](src/fetch_dna.py), [colab/nucleotide_transformer_colab.py](colab/nucleotide_transformer_colab.py), [src/phase14_multitrack.py](src/phase14_multitrack.py) | Attempt to engage the NA track. Fetch CDS DNA for all 2400 UniProt IDs (98.4% coverage), embed with Nucleotide Transformer v1 2.5B on Colab, add to the ensemble. **Negative result** — NT v1 alone scored F1 = 0.008 in our pipeline and adding it to the majority vote dropped the ensemble from 0.267 to 0.264. The NA-track gap remains open. |
 
 ## Compute / hardware
 
@@ -234,6 +238,12 @@ python src/phase12_esm3b_eval.py
 
 # Phase 13 — final crossover ensemble -> F1 = 0.2668
 python src/phase13_crossover.py
+
+# Phase 14 — attempt to engage the NA track (negative result)
+python src/fetch_dna.py                       # fetch CDS DNA for all UniProt IDs
+#   then on Colab T4: colab/nucleotide_transformer_colab.py
+#   move features/nt_v1_25b_matrix.npz into place, then:
+python src/phase14_multitrack.py              # NT v1 alone: 0.008; ensemble: 0.264
 ```
 
 Per-phase outputs land in `results/` (CSVs + text summaries) and `charts/`
@@ -248,16 +258,24 @@ embedding steps.
 - **TM-align rescoring + iterative search hurts Foldseek on this task** (F1 0.238 → 0.229). Default Foldseek scoring is already near-optimal for short, structurally-divergent queries.
 - **Trained classifiers on the Foldseek bit-score affinity matrix (1969-D) do not beat the simple argmax** (i.e., top-1 nearest neighbor). With 5 train samples per class for 400 classes, nearest-neighbor is essentially optimal among non-pretrained methods. This is consistent with the few-shot learning literature.
 - **ESM2 scaling has rapidly diminishing returns inside this ensemble.** Going from ESM2-35M (F1 ensemble 0.250) to ESM2-150M (0.252) to ESM2-3B (0.265) to ESM2-3B + ProstT5 + ESM2-150M majority (0.267) shows you need multimodal diversity in the fallback, not just a bigger single model.
+- **Nucleotide Transformer v1 2.5B did not transfer the DGEB NA-track gains into our pipeline** (Phase 14, F1 = 0.008 alone). Two factors at play. (a) NT v2 (which DGEB benchmarks at 0.506) uses a custom HF "remote code" config that does not load cleanly under recent `transformers` versions on Colab; the missing-attribute errors (`rope_theta`, `is_decoder`, …) need patches per attribute, and we did not chase them down. We fell back to NT v1 2.5B, which loads cleanly without remote code but was never benchmarked by DGEB on this task. (b) Even with the model loaded, our mean-pooled-last-hidden + LogReg downstream is the same protocol that under-reproduced the AA-track DGEB numbers (our ESM2-3B alone got 0.188 vs DGEB's 0.265); the same protocol mismatch likely affects NT. Engaging the NA track properly probably requires either replicating DGEB's exact downstream or resolving the NT v2 remote-code load.
 
 ## Open question this work raises
 
 The DGEB paper itself documents that nucleotide-based models (NT v2-250M
 = 0.506, Evo = 0.446) significantly outperform every amino-acid model on
 this task. Our AA-track recipe characterizes one side of that gap precisely.
-A natural follow-up — outside the scope of this work — is whether
-ensembling Foldseek with a nucleotide-context-aware model closes the
-AA-vs-NA gap any further, or whether the two signal sources are largely
-overlapping.
+
+We did make a Phase 14 attempt to engage the NA track using Nucleotide
+Transformer v1 2.5B Multispecies (after NT v2 hit a remote-code config
+compatibility issue on current `transformers`). It did not work in our
+pipeline: NT v1 alone scored F1 = 0.008, and adding it to the majority
+vote dropped the ensemble from 0.267 to 0.264 — see "Negative results"
+for the likely reasons. So the open question is now sharper, not closed:
+*can the DGEB NA-track signal be reproduced in a Foldseek + LM ensemble
+once the protocol mismatch is fixed?* That requires either replicating
+DGEB's exact downstream (which we did not) or solving the NT v2
+remote-code load.
 
 ## Citation if you use this recipe
 
