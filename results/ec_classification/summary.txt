@@ -1,0 +1,12 @@
+ec_classification crossover summary
+==================================================
+
+DGEB AA-best reference: F1 = 0.68
+BEST: FS(prob>=0.3) > MAJ(4 LMs)  F1 = 0.7305
+
+Top 5:
+  FS(prob>=0.3) > MAJ(4 LMs)                              F1 = 0.7305
+  FS(prob>=0.5) > MAJ(4 LMs)                              F1 = 0.7305
+  FS(prob>=0.7) > MAJ(4 LMs)                              F1 = 0.7227
+  FS(prob>=0.9) > MAJ(4 LMs)                              F1 = 0.7214
+  FS(prob>=0.5) > esm2_t36_3B                             F1 = 0.7201

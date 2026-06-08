@@ -8,9 +8,19 @@ F1 = 0.265) using a CPU laptop plus a free 30-minute Colab GPU session.
 
 ## Headline result
 
-**Weighted F1 = 0.2668**, crossing the strongest reported amino-acid
-foundation-model baseline on this benchmark (ESM2-3B = 0.265) by 0.0018.
-Our approach uses only amino-acid sequences and predicted structures.
+The same recipe (Foldseek structural retrieval + a small protein-LM
+majority fallback) crosses the strongest amino-acid foundation-model
+baseline on **two** DGEB classification tasks:
+
+| Task | DGEB ESM2-3B (AA-best) | Our recipe | Δ |
+|---|---:|---:|---:|
+| Convergent Enzymes (homology-removed, few-shot) | 0.265 | **0.267** | +0.002 |
+| EC Classification (homology-preserved) | 0.680 | **0.731** | **+0.050** |
+
+The pattern holds across both regimes. The Convergent Enzymes win is
+narrow (~1 query); the EC Classification win is robust (every ensemble
+configuration tested crosses 0.680). Our approach uses only amino-acid
+sequences and predicted structures, no DNA, no GPU at inference time.
 
 Winning configuration:
 
@@ -126,6 +136,8 @@ is the first published Foldseek number on this benchmark.
 | 12 | [src/phase12_esm3b_eval.py](src/phase12_esm3b_eval.py) | ESM2-3B embeddings (Colab) + Foldseek ensemble; ties 0.265. |
 | 13 | [src/phase13_crossover.py](src/phase13_crossover.py) | Final crossover: Foldseek + 3-model majority fallback. **F1 = 0.2668.** |
 | 14 | [src/fetch_dna.py](src/fetch_dna.py), [colab/nucleotide_transformer_colab.py](colab/nucleotide_transformer_colab.py), [src/phase14_multitrack.py](src/phase14_multitrack.py) | Attempt to engage the NA track. Fetch CDS DNA for all 2400 UniProt IDs (98.4% coverage), embed with Nucleotide Transformer v1 2.5B on Colab, add to the ensemble. **Negative result** — NT v1 alone scored F1 = 0.008 in our pipeline and adding it to the majority vote dropped the ensemble from 0.267 to 0.264. The NA-track gap remains open. |
+| 15 | [src/generic_download.py](src/generic_download.py), [src/generic_esm2.py](src/generic_esm2.py), [src/generic_crossover.py](src/generic_crossover.py) | Multi-task generalization. The same recipe applied to DGEB **EC Classification** (512 train / 128 test, 128 classes) reaches **F1 = 0.7305**, crossing DGEB's ESM2-3B reference (0.680) by 0.050. Every Foldseek + LM configuration we tested clears the baseline. Confirms the recipe is not a Convergent Enzymes one-off. |
+| 16 | [src/analysis_hard_queries.py](src/analysis_hard_queries.py) | Per-query analysis on Convergent Enzymes: what makes a test protein hard? Hard queries are statistically longer (p=0.05) and have longer CDS (p=0.02). GC content trends higher in hard queries (p=0.09, not significant). Suggests a mechanism for the AA-vs-NA gap: long, GC-rich proteins are exactly where DNA-context signal might dominate over sequence/structure. |
 
 ## Compute / hardware
 
