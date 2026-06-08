@@ -11,7 +11,7 @@ abstract: >
   ceiling well above the AA track.
 authors:
   - given-names: Abhinav
-    family-names: E V R
+    family-names: Erraguntla
     email: evrabhinav@gmail.com
     affiliation: independent
 date-released: 2026-05-14
@@ -33,6 +33,6 @@ preferred-citation:
   title: "Foldseek + small LM ensemble crosses the AA-foundation-model baseline on DGEB Convergent Enzymes"
   authors:
     - given-names: Abhinav
-      family-names: E V R
+      family-names: Erraguntla
   year: 2026
   url: "https://github.com/evrabhinav/convergent-enzymes-foldseek"
