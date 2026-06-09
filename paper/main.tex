@@ -57,20 +57,20 @@ prediction from the homology shortcut. Among the amino-acid (AA)
 foundation models evaluated by DGEB, the strongest, ESM2-3B
 \citep{lin2023esm2}, reaches a weighted F1 of $0.265$, well below the
 strongest reported nucleotide model on the same task
-($\text{NT v2-250M} = 0.506$). I show that a confidence-gated
+($\text{NT v2-250M} = 0.506$). This work shows that a confidence-gated
 combination of Foldseek structural retrieval \citep{vankempen2024foldseek}
 and a small protein-LM majority fallback reaches F1$=0.267$ on
 Convergent Enzymes, matching the AA foundation-model ceiling at a
 fraction of the compute. The same recipe transfers to DGEB EC
 Classification, where it reaches F1$=0.730$ versus the ESM2-3B reference
-of $0.680$. A per-query analysis shows that the queries my ensemble
+of $0.680$. A per-query analysis shows that the queries the ensemble
 misses are statistically longer (Mann--Whitney $p = 0.02$) and trend
 toward higher CDS GC content ($p = 0.09$), offering a mechanistic
 conjecture for why DNA-level models close the AA-vs-NA gap on this
-benchmark. I also report negative results: pocket-geometry features,
-spatial 3Di motif counting, and a Nucleotide Transformer v1 ensembling
-attempt all underperform. Code, embeddings, and a fully reproducible
-pipeline are public.\footnote{\url{https://github.com/evrabhinav/convergent-enzymes-foldseek}}
+benchmark. Negative results are also reported: pocket-geometry
+features, spatial 3Di motif counting, and a Nucleotide Transformer v1
+ensembling attempt all underperform. Code, embeddings, and a fully
+reproducible pipeline are public.\footnote{\url{https://github.com/evrabhinav/convergent-enzymes-foldseek}}
 \end{abstract}
 
 \section{Introduction}
@@ -93,7 +93,7 @@ the same task, e.g.\ NT v2-250M~\citep{dallatorre2024nt} at $0.506$
 and Evo~\citep{nguyen2024evo} at $0.446$. This inversion, with
 DNA-level models outperforming AA-level models by nearly $2\times$ on a
 protein function classification task, is itself notable, and is the
-empirical anomaly motivating my analysis.
+empirical anomaly motivating the analysis presented here.
 
 The Riziotis hypothesis \citep{riziotis2024active} suggests that
 convergent enzymes share local active-site geometry even when their
@@ -106,19 +106,20 @@ task-specific training.
 This paper makes the following empirical contributions.
 
 \begin{itemize}
-\item I report, to my knowledge, the first Foldseek score on DGEB
-      Convergent Enzymes Classification: $F1 = 0.238$ (top-1) with no
-      training and a single AlphaFold structure per protein.
+\item To the author's knowledge, this is the first reported Foldseek
+      score on DGEB Convergent Enzymes Classification: $F1 = 0.238$
+      (top-1) with no training and a single AlphaFold structure per
+      protein.
 \item A confidence-gated combination of Foldseek with a small protein-LM
       majority fallback (ESM2-3B + ProstT5 + ESM2-150M) reaches
       $F1 = 0.267$ on Convergent Enzymes, matching the strongest AA
       foundation-model baseline reported by DGEB ($0.265$).
 \item The same recipe transfers to DGEB EC Classification (an easier,
       homology-preserving task), reaching $F1 = 0.730$ versus the
-      ESM2-3B reference of $0.680$. Every configuration I tested in
-      the ensemble sweep clears the baseline.
+      ESM2-3B reference of $0.680$. Every configuration tested in the
+      ensemble sweep clears the baseline.
 \item A per-query analysis on Convergent Enzymes shows that the queries
-      my ensemble misses are statistically longer ($p = 0.02$) and
+      the ensemble misses are statistically longer ($p = 0.02$) and
       trend toward higher CDS GC content ($p = 0.09$). Both properties
       are accessible to nucleotide-based foundation models but invisible
       to amino-acid models, suggesting a mechanism for the AA-vs-NA
@@ -127,14 +128,15 @@ This paper makes the following empirical contributions.
       (424-D) score $F1 = 0.016$; hand-crafted global structural
       features (100-D) score $0.060$; pocket-geometry features
       (fpocket, 81-D) score $0.019$; spatial 3Di motif counting scores
-      $\leq 0.073$; Nucleotide Transformer v1 2.5B embeddings in my
+      $\leq 0.073$; Nucleotide Transformer v1 2.5B embeddings in this
       pipeline score $0.008$ alone and reduce the ensemble F1 when
       added.
 \end{itemize}
 
-I do not contest the nucleotide-track ceiling on this benchmark. My
-result characterises the AA side of the AA-vs-NA gap precisely and
-offers a property-based hypothesis for what the DNA side is exploiting.
+This work does not contest the nucleotide-track ceiling on this
+benchmark. The result characterises the AA side of the AA-vs-NA gap
+precisely and offers a property-based hypothesis for what the DNA side
+is exploiting.
 
 \section{Related Work}
 
@@ -171,38 +173,38 @@ DGEB.
 
 \subsection{Data}
 
-I use the DGEB \texttt{convergent\_enzymes} dataset
+This study uses the DGEB \texttt{convergent\_enzymes} dataset
 ($2000$ train, $400$ test, $400$ classes) and \texttt{ec\_classification}
-dataset ($512$ train, $128$ test, $128$ classes). For each UniProt ID in
-either split I download the AlphaFold predicted structure
-\citep{jumper2021alphafold,varadi2024afdb} via the EBI API. Coverage is
-$98.3\%$ on Convergent Enzymes ($2360 / 2400$ proteins) and $94.8\%$ on
-EC Classification ($607 / 640$); the remaining proteins have no entry
-in AlphaFold DB.
+dataset ($512$ train, $128$ test, $128$ classes). For each UniProt ID
+in either split, the AlphaFold predicted structure
+\citep{jumper2021alphafold,varadi2024afdb} is downloaded via the EBI
+API. Coverage is $98.3\%$ on Convergent Enzymes
+($2360 / 2400$ proteins) and $94.8\%$ on EC Classification
+($607 / 640$); the remaining proteins have no entry in AlphaFold DB.
 
 \subsection{Pipeline}
 
-My pipeline has three components.
+The pipeline has three components.
 
 \paragraph{Structural retrieval (Foldseek).}
-I build a Foldseek database from the train set and run
-\texttt{easy-search} with default parameters
+A Foldseek database is built from the train set, and
+\texttt{easy-search} is run with default parameters
 (\texttt{-s 9.5 -e 10 --max-seqs 50}) and the standard 3Di scoring
-matrix. For each test query, the top-1 hit's EC label is returned. I
-attach Foldseek's per-hit alignment probability \texttt{prob} as a
+matrix. For each test query, the top-1 hit's EC label is returned.
+Foldseek's per-hit alignment probability \texttt{prob} serves as a
 confidence signal.
 
 \paragraph{Amino-acid language-model fallbacks.}
-I embed every protein with four LMs and treat each as a separate
-classifier head. I use ESM2-35M, ESM2-150M, and ESM2-3B
+Every protein is embedded with four LMs, each treated as a separate
+classifier head: ESM2-35M, ESM2-150M, and ESM2-3B
 \citep{lin2023esm2}, and ProstT5 in its AA mode
 \citep{heinzinger2024prostt5}. Embeddings are produced by mean-pooling
 the encoder's last hidden state over residue positions, excluding the
 \texttt{[CLS]} and \texttt{[EOS]} special tokens. Sequences longer than
 the model's context (1022 tokens for ESM2-3B, 1024 for the others) are
-truncated. For each LM I fit a regularised logistic regression
-($C = 1.0$) on the standardised training embeddings and predict on the
-test set.
+truncated. For each LM, a regularised logistic regression ($C = 1.0$)
+is fit on the standardised training embeddings and used to predict on
+the test set.
 
 \paragraph{Confidence-gated ensemble.}
 The final prediction for each test query is
@@ -236,7 +238,7 @@ pipeline, including all negative-result experiments, is approximately
 
 \subsection{Main result: two-task generalisation}
 
-Table~\ref{tab:main} reports my best ensemble configuration on each
+Table~\ref{tab:main} reports the best ensemble configuration on each
 of the two DGEB classification tasks against the strongest AA
 foundation-model baseline reported by DGEB.
 
@@ -261,21 +263,21 @@ EC Classification & $512 / 128$ & $0.680$ & $\mathbf{0.730}$ & $+0.050$ \\
 \centering
 \includegraphics[width=\textwidth]{../charts/phase13_final.png}
 \caption{DGEB Convergent Enzymes Classification ($400$-class
-few-shot, homology removed). My ensemble (red) ties the DGEB AA-best
-baseline ESM2-3B (dashed line at $0.265$).}
+few-shot, homology removed). The proposed ensemble (red) ties the
+DGEB AA-best baseline ESM2-3B (dashed line at $0.265$).}
 \label{fig:ce}
 \end{subfigure}\hfill
 \begin{subfigure}[t]{0.48\textwidth}
 \centering
 \includegraphics[width=\textwidth]{../charts/ec_classification_crossover.png}
 \caption{DGEB EC Classification ($128$-class, homology-preserved).
-Every ensemble configuration I tested clears the DGEB ESM2-3B
-baseline (dashed line at $0.680$); my best at $0.730$.}
+Every ensemble configuration tested clears the DGEB ESM2-3B baseline
+(dashed line at $0.680$); the best at $0.730$.}
 \label{fig:ec}
 \end{subfigure}
 \caption{Per-method comparison on the two DGEB classification tasks
-I evaluate. Bars are weighted F1; the dashed line marks the
-strongest amino-acid foundation-model baseline reported by DGEB
+evaluated in this work. Bars are weighted F1; the dashed line marks
+the strongest amino-acid foundation-model baseline reported by DGEB
 \citep{tan2024dgeb}.}
 \label{fig:main}
 \end{figure}
@@ -295,7 +297,7 @@ or because Foldseek returned no hit at all for that query, which is
 the case for $13$ queries). Foldseek top-1 alone, with no LM fallback,
 reaches $F1 = 0.238$. On EC Classification the
 gain is much larger and qualitatively different: every Foldseek + LM
-configuration I sweep clears the $0.680$ baseline, and the best
+configuration in the sweep clears the $0.680$ baseline, and the best
 configuration improves by $+0.050$ F1.
 
 \subsection{Ablation chain on Convergent Enzymes}
@@ -320,7 +322,7 @@ Amino-acid features (424-D, LR) & $0.016$ & composition + dipeptides + 4 physico
 Hand-crafted structural features (100-D, RF) & $0.060$ & SS\%, contacts, geometry, SASA \\
 Pocket-geometry features (81-D, RF) & $0.019$ & fpocket descriptors of top-3 pockets \\
 Spatial 3Di motif counting (best) & $0.073$ & linear 3Di k-mers \citep{vankempen2024foldseek} \\
-ESM2-3B alone (LR) & $0.188$ & my pipeline; DGEB reports $0.265$ \\
+ESM2-3B alone (LR) & $0.188$ & this pipeline; DGEB reports $0.265$ \\
 ProstT5 alone (LR) & $0.171$ & AA mode \\
 Foldseek top-1 alone & $0.238$ & no training \\
 Foldseek + ESM2-150M fallback (best $\tau$) & $0.252$ & two-modality ensemble \\
@@ -333,15 +335,15 @@ ESM2-3B (DGEB reported) & $0.265$ & reference \\
 A few facts worth noting from Table~\ref{tab:ablation}.
 
 \begin{itemize}
-\item My reimplementation of ESM2-3B alone scores $0.188$, against
-      $0.265$ reported by DGEB on the same model. I use a single
-      regularised logistic regression on mean-pooled last-hidden-state
-      embeddings; DGEB's reported number presumably comes from a
-      different downstream protocol (I did not replicate their
-      evaluation code, and they have not released per-query
-      predictions). My Foldseek + small-LM ensemble at $F1 = 0.267$
+\item The reimplementation of ESM2-3B alone scores $0.188$, against
+      $0.265$ reported by DGEB on the same model. The protocol used
+      here is a single regularised logistic regression on mean-pooled
+      last-hidden-state embeddings; DGEB's reported number presumably
+      comes from a different downstream protocol (DGEB's evaluation
+      code was not replicated, and per-query predictions have not been
+      released). The Foldseek + small-LM ensemble at $F1 = 0.267$
       exceeds the DGEB-reported number despite the underlying ESM2-3B
-      component being weaker in my pipeline, because the ensemble is
+      component being weaker in this pipeline, because the ensemble is
       dominated by Foldseek in the confident regime and the LM
       fallback only operates on the low-confidence remainder.
 \item Hand-crafted features that describe the protein as a whole
@@ -354,14 +356,15 @@ A few facts worth noting from Table~\ref{tab:ablation}.
 \item Discrete motif counting on 3Di tokens, whether linear k-mers,
       sequence-distant spatial pairs, spatial triples, or
       amino-acid$\times$3Di joint motifs, never exceeds $F1 = 0.073$
-      in my experiments. Foldseek's edge over exact-motif counting
-      comes from its empirical 3Di substitution matrix and local
-      alignment with affine gaps, not from the alphabet alone.
+      in the experiments reported here. Foldseek's edge over
+      exact-motif counting comes from its empirical 3Di substitution
+      matrix and local alignment with affine gaps, not from the
+      alphabet alone.
 \end{itemize}
 
 \subsection{Per-LM contribution and ensemble robustness}
 
-Within my ensemble, the per-LM contributions are very different on
+Within the ensemble, the per-LM contributions are very different on
 the two tasks. On Convergent Enzymes the LMs are weak alone
 (ESM2-35M $0.161$, ESM2-150M $0.139$, ESM2-3B $0.188$, ProstT5
 $0.171$) and serve only as a tie-breaking fallback when Foldseek is
@@ -382,13 +385,12 @@ hyperparameter cherry-picking.
 \subsection{Hard-query analysis on Convergent Enzymes}
 \label{sec:hard}
 
-Of the $400$ Convergent Enzymes test queries, my best ensemble
+Of the $400$ Convergent Enzymes test queries, the best ensemble
 correctly predicts $126$ ($31.5\%$ accuracy; the weighted F1 of
-$0.267$ accounts for class-imbalance reweighting). I compare the
-distributions of several per-query properties across the
-ensemble-correct and ensemble-incorrect subsets
-(Table~\ref{tab:hard}). I test each marginal with a two-sided
-Mann--Whitney $U$ test.
+$0.267$ accounts for class-imbalance reweighting). The distributions
+of several per-query properties across the ensemble-correct and
+ensemble-incorrect subsets are compared (Table~\ref{tab:hard}). Each
+marginal is tested with a two-sided Mann--Whitney $U$ test.
 
 \begin{table}[h]
 \centering
@@ -422,15 +424,12 @@ whiskers.}
 \label{fig:hard}
 \end{figure}
 
-Figure~\ref{fig:hard} shows the boxplot view of these distributions
-for the four properties beyond Foldseek probability.
-
 Three observations.
 
 \begin{enumerate}
 \item Foldseek's per-hit probability is by far the strongest signal of
       ensemble difficulty ($p = 3 \times 10^{-5}$), confirming that
-      my confidence-gating strategy is well calibrated and that the
+      the confidence-gating strategy is well calibrated and that the
       $\tau = 0.9$ threshold reflects a real distributional split
       rather than a tuned constant.
 \item Hard queries are statistically longer ($p = 0.02$ on CDS length;
@@ -447,19 +446,19 @@ Three observations.
 
 This does not prove that NT v2-250M exploits GC content to reach
 $F1 = 0.506$ on this task. It does, however, show that the queries
-which AA-side models (ours and DGEB's) get wrong have a quantifiably
-different DNA-level signature from the queries they get right. A direct
-contrast against per-query NT v2 predictions, which I do not have
-access to, would test this conjecture.
+which AA-side models (the ensemble here and DGEB's) get wrong have a
+quantifiably different DNA-level signature from the queries they get
+right. A direct contrast against per-query NT v2 predictions, which
+are not publicly available, would test this conjecture.
 
 \subsection{Negative results}
 
 \paragraph{Pocket-geometry features.}
 fpocket \citep{leguilloux2009fpocket} detects $5$--$15$ surface
-cavities per AlphaFold structure. I extracted the top-3 pockets'
-geometric descriptors (volume, druggability score, hydrophobicity,
-polarity, alpha-sphere statistics) plus the amino-acid composition
-of the top-1 pocket's lining residues, yielding $81$ features per
+cavities per AlphaFold structure. The top-3 pockets' geometric
+descriptors (volume, druggability score, hydrophobicity, polarity,
+alpha-sphere statistics) plus the amino-acid composition of the top-1
+pocket's lining residues were extracted, yielding $81$ features per
 protein. The best classifier on these features reaches $F1 = 0.019$
 on Convergent Enzymes, only modestly above random. fpocket detects
 generic cavities, not catalytic sites; the top-1 pocket by score is
@@ -467,35 +466,36 @@ rarely the actual active site. Adding pocket features to the ensemble
 does not improve over Foldseek alone.
 
 \paragraph{Discrete motif counting on 3Di tokens.}
-I tested three motif-counting variants on the 3Di sequences of the
-training proteins: linear k-mers (best $F1 = 0.073$ at $k = 4$,
+Three motif-counting variants on the 3Di sequences of the training
+proteins were tested: linear k-mers (best $F1 = 0.073$ at $k = 4$,
 in-class-fraction $\geq 3/5$, log-enrichment $\geq \log_2 10$);
 spatial pairs and triples of 3Di letters at residues with $|i-j| \geq 6$
 and $C_\alpha\text{--}C_\alpha \leq 9$~\AA{} (best $F1 = 0.017$);
 and joint amino-acid$\times$3Di spatial motifs (best $F1 = 0.035$).
-None approaches Foldseek's $F1 = 0.238$. I attribute this to
+None approaches Foldseek's $F1 = 0.238$. This is attributed to
 Foldseek's local alignment with the empirically trained 3Di
 substitution matrix; exact motif matching, even in a $400$-letter
 joint alphabet, cannot replicate that.
 
 \paragraph{Nucleotide Transformer v1 ensembling.}
-I attempted to engage the NA track by adding Nucleotide Transformer
-predictions to the ensemble. NT v2 \citep{dallatorre2024nt}, the
-variant DGEB reports as $F1 = 0.506$ on this task, failed to load
-under recent \texttt{transformers} versions on Colab; its custom
-remote-code config exposes attributes
+An attempt was made to engage the NA track by adding Nucleotide
+Transformer predictions to the ensemble. NT v2
+\citep{dallatorre2024nt}, the variant DGEB reports as $F1 = 0.506$ on
+this task, failed to load under recent \texttt{transformers} versions
+on Colab; its custom remote-code config exposes attributes
 (\texttt{rope\_theta}, \texttt{is\_decoder}, \dots) that newer
-\texttt{transformers} releases do not provide as defaults. I fell
-back to NT v1 2.5B Multispecies, which loads cleanly. In my pipeline
+\texttt{transformers} releases do not provide as defaults. The fallback
+was NT v1 2.5B Multispecies, which loads cleanly. In this pipeline
 (LogReg on mean-pooled embeddings) it scores $F1 = 0.008$ alone, and
-adding it to the majority vote drops the ensemble from $F1 = 0.267$
-to $F1 = 0.264$. Two factors likely matter: (a) the v1$\leftrightarrow$v2
+adding it to the majority vote drops the ensemble from $F1 = 0.267$ to
+$F1 = 0.264$. Two factors likely matter: (a) the v1$\leftrightarrow$v2
 architecture difference is large on this task, and DGEB does not
-benchmark v1 on Convergent Enzymes; (b) my downstream protocol
-under-reproduces DGEB's reported AA numbers too, so the gap between
-my NT result and DGEB's is partly a downstream-protocol issue
-unrelated to the model itself. Resolving this would require either
-the NT v2 compatibility issue or access to DGEB's downstream code.
+benchmark v1 on Convergent Enzymes; (b) the downstream protocol used
+here under-reproduces DGEB's reported AA numbers too, so the gap
+between this NT result and DGEB's is partly a downstream-protocol
+issue unrelated to the model itself. Resolving this would require
+either the NT v2 compatibility issue or access to DGEB's downstream
+code.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -503,8 +503,8 @@ the NT v2 compatibility issue or access to DGEB's downstream code.
 \paragraph{What the AA-vs-NA gap is, and is not.}
 On DGEB Convergent Enzymes, every AA foundation model published in
 the DGEB paper caps near $F1 = 0.27$, while every NA foundation model
-tested clears $F1 = 0.45$. My result on this task ($F1 = 0.267$) does
-not contest this gap; I work entirely on the AA track. My
+tested clears $F1 = 0.45$. The result on this task ($F1 = 0.267$) does
+not contest this gap; this work operates entirely on the AA track. The
 contribution is to characterise the AA ceiling precisely: with
 Foldseek's structural retrieval as a base classifier and a small-LM
 majority fallback, the AA ceiling is already reached at the budget of
@@ -512,7 +512,7 @@ a CPU laptop, and any further gain on this benchmark must come from
 the NA-track signal, not from cleverer AA-side methods.
 
 \paragraph{What might NT be doing right?} Section~\ref{sec:hard}
-provides a property-based conjecture: queries my AA ensemble misses
+provides a property-based conjecture: queries the AA ensemble misses
 are systematically longer and (weakly) higher-GC than queries it gets
 right. Longer proteins dilute the catalytic-residue signal in any
 whole-protein measure; higher GC and biased codon usage are exactly
@@ -534,18 +534,19 @@ single recipe handles both regimes without retuning.
 
 \paragraph{Limitations.}
 \begin{itemize}
-\item I evaluate on two DGEB tasks. Generalisation to the broader
+\item Only two DGEB tasks are evaluated. Generalisation to the broader
       DGEB suite (operonic pairs, retrieval, phylogeny) requires
-      pipeline changes my current code does not implement.
+      pipeline changes that the current code does not implement.
 \item The Convergent Enzymes win margin is small ($+0.002$ F1) and
-      not by itself a strong claim. I rely on the multi-task pattern
-      and the ablation chain rather than the headline number.
-\item My reimplementation of ESM2-3B falls short of DGEB's published
-      number for that model on this benchmark by $0.077$ F1. The gap is
-      a downstream-protocol mismatch; I did not replicate DGEB's
-      evaluation pipeline. My ensemble does not depend on closing
-      that gap.
-\item I did not engage the NA track. The Phase 14 attempt with NT v1
+      not by itself a strong claim. The argument rests on the
+      multi-task pattern and the ablation chain rather than the
+      headline number.
+\item The ESM2-3B reimplementation here falls short of DGEB's
+      published number for that model on this benchmark by $0.077$ F1.
+      The gap is a downstream-protocol mismatch; DGEB's evaluation
+      pipeline was not replicated. The ensemble does not depend on
+      closing that gap.
+\item The NA track is not engaged. The Phase 14 attempt with NT v1
       is a negative result, not a contradiction of DGEB's NT v2 result.
 \end{itemize}
 
@@ -553,9 +554,9 @@ single recipe handles both regimes without retuning.
 loader compatibility issue (or obtain DGEB's per-query NT v2
 predictions) and run the contrast experiment that
 Section~\ref{sec:hard} sets up: are the queries NT v2 gets right
-exactly the ones with the GC-content and length signature I
-identified? If yes, that would localise the AA-vs-NA gap to a small
-set of DNA-level properties that could in principle be approximated by
+exactly the ones with the GC-content and length signature identified
+here? If yes, that would localise the AA-vs-NA gap to a small set of
+DNA-level properties that could in principle be approximated by
 attaching codon-usage features to an AA model. A second direction is
 to validate the Foldseek-as-active-site claim directly against M-CSA
 \citep{ribeiro2018mcsa} catalytic-residue annotations.
@@ -578,11 +579,11 @@ benchmark must come from.
 \section*{Acknowledgements}
 
 This work was performed as an extension of a course project after the
-course concluded. I thank Dr.\ Anna Green for pointing me at MLCB as
-a venue. The implementation work used a large language model (Claude)
-as a coding partner; the experimental design, choice of methods, and
-interpretation are the author's. All numbers reported here can be
-reproduced from the public repository.
+course concluded. The author thanks Dr.\ Anna Green for the suggestion
+of MLCB as a venue. The implementation work used a large language
+model (Claude) as a coding partner; the experimental design, choice of
+methods, and interpretation are the author's. All numbers reported
+here can be reproduced from the public repository.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
