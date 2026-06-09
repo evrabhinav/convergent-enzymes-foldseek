@@ -1,16 +1,13 @@
-% References for the MLCB submission.
-% Each entry should be verified against the canonical source before submission.
-% Citations that we could not verify exhaustively are flagged with a TODO
-% in the comment above the entry.
+% References for the MLCB submission. All entries verified against the
+% canonical source.
 
 % --- DGEB benchmark ---
-% TODO: verify exact venue + authors before submission.
-@misc{tan2024dgeb,
-  author       = {Tan, Andre and Pommerich-Wood, Joshua and Hong, Pan-Wei and Westover, Andrew and Karpekov, Andrey},
-  title        = {The {DGEB} benchmark: {D}iverse {G}enomic {E}mbedding {B}enchmark for functional evaluation of protein models},
-  year         = {2024},
-  howpublished = {arXiv preprint and dataset on HuggingFace, \url{https://huggingface.co/datasets/tattabio/convergent_enzymes}},
-  note         = {Authors and venue to be verified.}
+@inproceedings{westroberts2024dgeb,
+  author    = {West-Roberts, Jacob and Kravitz, Joshua and Jha, Nishant and Cornman, Andre and Hwang, Yunha},
+  title     = {Diverse Genomic Embedding Benchmark for Functional Evaluation Across the Tree of Life},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  note      = {bioRxiv preprint \url{https://doi.org/10.1101/2024.07.10.602933}}
 }
 
 % --- Foldseek ---
@@ -46,32 +43,40 @@
   year    = {2021}
 }
 
-% --- AlphaFold DB ---
-% TODO: verify the canonical citation for the 2024 update.
+% --- AlphaFold DB 2024 ---
 @article{varadi2024afdb,
-  author  = {Varadi, Mihaly and Bertoni, Damian and Magana, Paulyna and others},
-  title   = {{A}lpha{F}old protein structure database in 2024: providing structure coverage for over 214 million proteins},
+  author  = {Varadi, Mihaly and Bertoni, Damian and Magana, Paulyna and Paramval, Urmila and Pidruchna, Ivanna and Radhakrishnan, Malarvizhi and Tsenkov, Maxim and Nair, Sreenath and Mirdita, Milot and Yeo, Jingi and Kovalevskiy, Oleg and Tunyasuvunakool, Kathryn and Laydon, Agata and {\v{Z}}{\'\i}dek, Augustin and Tomlinson, Hamish and Hariharan, Dhavanthi and Abrahamson, Josh and Green, Tim and Jumper, John and Birney, Ewan and Steinegger, Martin and Hassabis, Demis and Velankar, Sameer},
+  title   = {{A}lpha{F}old protein structure database in 2024: providing structure coverage for over 214 million protein sequences},
   journal = {Nucleic Acids Research},
+  volume  = {52},
+  number  = {D1},
+  pages   = {D368--D375},
   year    = {2024},
-  note    = {Authors and exact citation to be verified.}
+  doi     = {10.1093/nar/gkad1011}
 }
 
 % --- ProstT5 ---
-% TODO: verify journal and volume; Heinzinger 2024 is canonical.
 @article{heinzinger2024prostt5,
-  author  = {Heinzinger, Michael and Weissenow, Konstantin and S{\'a}nchez, Joaquin Gomez and Henkel, Adrian and Steinegger, Martin and Rost, Burkhard},
+  author  = {Heinzinger, Michael and Weissenow, Konstantin and Sanchez, Joaquin Gomez and Henkel, Adrian and Mirdita, Milot and Steinegger, Martin and Rost, Burkhard},
   title   = {Bilingual language model for protein sequence and structure},
   journal = {NAR Genomics and Bioinformatics},
+  volume  = {6},
+  number  = {4},
+  pages   = {lqae150},
   year    = {2024},
-  note    = {Volume/issue to be verified.}
+  doi     = {10.1093/nargab/lqae150}
 }
 
 % --- Nucleotide Transformer ---
 @article{dallatorre2024nt,
   author  = {Dalla-Torre, Hugo and Gonzalez, Liam and Mendoza-Revilla, Javier and Lopez Carranza, Nicolas and Henryk Grzywaczewski, Adam and Oteri, Francesco and Dallago, Christian and Trop, Evan and de Almeida, Bernardo P. and Sirelkhatim, Hassan and Richard, Guillaume and Skwark, Marcin and Beguir, Karim and Lopez, Marie and Pierrot, Thomas},
-  title   = {The {N}ucleotide {T}ransformer: building and evaluating robust foundation models for human genomics},
-  journal = {bioRxiv},
-  year    = {2024}
+  title   = {Nucleotide {T}ransformer: building and evaluating robust foundation models for human genomics},
+  journal = {Nature Methods},
+  volume  = {22},
+  number  = {2},
+  pages   = {287--297},
+  year    = {2025},
+  doi     = {10.1038/s41592-024-02523-z}
 }
 
 % --- Evo ---
@@ -79,20 +84,22 @@
   author  = {Nguyen, Eric and Poli, Michael and Durrant, Matthew G. and Kang, Brian and Katrekar, Dhruva and Li, David B. and Bartie, Liam J. and Thomas, Armin W. and King, Samuel H. and Brixi, Garyk and Sullivan, Jeremy and Ng, Madelena Y. and Lewis, Ashley and Lou, Aaron and Ermon, Stefano and Baccus, Stephen A. and Hernandez-Boussard, Tina and R{\'e}, Christopher and Hsu, Patrick D. and Hie, Brian L.},
   title   = {Sequence modeling and design from molecular to genome scale with {E}vo},
   journal = {Science},
-  year    = {2024}
+  volume  = {386},
+  number  = {6723},
+  year    = {2024},
+  doi     = {10.1126/science.ado9336}
 }
 
-% --- Riziotis on active-site geometry of convergent enzymes ---
-% TODO: verify - exact title, journal, year. Riziotis is a known author in
-% Thornton lab. The claim cited is well-established but I am not certain
-% which 2024 paper to cite here. Replace with the canonical reference before
-% submission.
-@article{riziotis2024active,
-  author  = {Riziotis, Ioannis A. and Thornton, Janet M.},
-  title   = {Conformational variation and conserved active-site geometry in convergent enzymes},
-  journal = {to be verified},
-  year    = {2024},
-  note    = {Citation to be verified before submission.}
+% --- Riziotis on convergent enzymes ---
+@article{riziotis2025paradigms,
+  author  = {Riziotis, Ioannis G. and Kafas, Jenny C. and Ong, Gabriel and Borkakoti, Neera and Ribeiro, Ant{\'o}nio J. M. and Thornton, Janet M.},
+  title   = {Paradigms of convergent evolution in enzymes},
+  journal = {The FEBS Journal},
+  volume  = {292},
+  number  = {3},
+  pages   = {537--555},
+  year    = {2025},
+  doi     = {10.1111/febs.17332}
 }
 
 % --- DeepFRI ---
