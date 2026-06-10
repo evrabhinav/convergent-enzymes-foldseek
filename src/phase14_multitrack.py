@@ -1,12 +1,13 @@
 """
-Phase 14: multi-track ensemble — adds the Nucleotide Transformer (NT-v1-2.5B)
+Phase 14: multi-track ensemble: adds the Nucleotide Transformer (NT-v1-2.5B)
 to the Foldseek + AA-LM stack from Phase 13.
 
-This is the experiment that engages the NA track of DGEB Convergent Enzymes.
-DGEB reports NT-v1-2.5B alone at F1 = 0.506, our previous best is 0.2668
-(Foldseek + AA-LM majority). Adding NT into the ensemble is the natural way
-to test whether the AA-side structural-retrieval signal still helps once a
-strong DNA-side model is in the mix.
+This is an exploratory attempt to add a nucleotide-track signal to the
+ensemble. NOTE: DGEB does NOT evaluate any NT variant on Convergent Enzymes
+Classification, so there is no DGEB NT number for this task to compare against
+(the 0.506 sometimes cited for NT is from the separate MIBIG Classification
+task). Our previous best is 0.2668 (Foldseek + AA-LM majority); the question
+here is simply whether NT embeddings help the ensemble at all. They did not.
 
 Inputs (already on disk from prior phases):
   features/esm2_3b_matrix.npz
@@ -203,30 +204,28 @@ def main():
     best = df.sort_values("weighted_f1", ascending=False).iloc[0]
     print(f"\n=== OVERALL BEST: {best['method']}  F1 = {best['weighted_f1']:.4f} ===")
     print(f"   DGEB ESM2-3B (AA-best): 0.265  -> crossed: {best['weighted_f1'] > 0.265}")
-    print(f"   DGEB NT-v1-2.5B (NA-SOTA): 0.506  -> crossed: {best['weighted_f1'] > 0.506}")
+    # NOTE: DGEB does not evaluate any NT variant on Convergent Enzymes, so
+    # there is no DGEB NT number for this task to compare against.
 
     methods = {
         "Sequence (424)": 0.016,
-        "Structural feat. (100)": 0.060,
+        "Structural feat. (100)": 0.037,
         "Foldseek top-1": 0.2383,
         "FS + AA-3 majority (Phase 13)": 0.2668,
         f"NT-v1-2.5B alone (ours)": f1s["NT-v1-2.5B"],
         f"BEST Phase 14\n({best['method']})": best["weighted_f1"],
         "ESM2-3B DGEB (AA-best)": 0.265,
-        "NT-v1-2.5B DGEB (NA-best)": 0.506,
     }
     fig, ax = plt.subplots(figsize=(15, 6))
-    colors = ["#bbb", "#88a", "#4c72b0", "#5588cc", "#a070d0", "#cc4444", "#888", "#444"]
+    colors = ["#bbb", "#88a", "#4c72b0", "#5588cc", "#a070d0", "#cc4444", "#444"]
     bars = ax.bar(list(methods.keys()), list(methods.values()), color=colors)
     for b, v in zip(bars, methods.values()):
         ax.text(b.get_x() + b.get_width() / 2, v + 0.005,
                 f"{v:.3f}", ha="center", va="bottom", fontsize=9)
     ax.axhline(0.265, ls="--", color="gray", alpha=0.5,
                label="DGEB AA-best (ESM2-3B = 0.265)")
-    ax.axhline(0.506, ls="--", color="darkred", alpha=0.5,
-               label="DGEB NA-best (NT-v1-2.5B = 0.506)")
     ax.set_ylabel("weighted F1")
-    ax.set_title("Phase 14 — multi-track ensemble (AA + structure + NA)")
+    ax.set_title("Phase 14: multi-track ensemble (AA + structure + NA add-on)")
     ax.set_ylim(0, max(max(methods.values()) * 1.2, 0.6))
     plt.xticks(rotation=10, ha="right", fontsize=8)
     ax.legend()

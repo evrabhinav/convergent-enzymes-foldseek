@@ -246,7 +246,7 @@ insertion order (i.e., the first model that voted for the tied label).
 The full pipeline runs on a 4-core Intel i5-11300H laptop with 16~GB RAM
 and no CUDA GPU. The two large language-model embeddings (ESM2-3B and
 ProstT5) are run on a free Google Colab T4 GPU session (approximately
-one hour total: roughly $50$ to $75$ minutes for ESM2-3B including the
+one hour total: roughly $60$ to $75$ minutes for ESM2-3B including the
 model download, plus about $10$ minutes for ProstT5). Foldseek runs in
 a WSL2 Ubuntu environment on the same laptop. Total wall-clock for the
 full Convergent Enzymes pipeline, including all negative-result
@@ -444,12 +444,14 @@ Codon entropy (bits) & $5.31$ & $5.35$ & $0.13$ \\
 \centering
 \includegraphics[width=\textwidth]{../charts/analysis_hard_vs_easy.png}
 \caption{Per-query property distributions on DGEB Convergent Enzymes,
-split by ensemble correctness. Foldseek's top-1 alignment probability
-is the strongest separator ($p = 3 \times 10^{-5}$). Protein length
-and CDS GC content also differ between the two groups, with the hard
-queries having longer sequences and (suggestively) higher GC content.
-Box plots show median, interquartile range, and 1.5$\times$IQR
-whiskers.}
+split by ensemble correctness. The four panels show Foldseek's top-1
+alignment probability, protein length, CDS GC content, and codon
+entropy. Foldseek's top-1 probability is the strongest separator
+($p = 3 \times 10^{-5}$); protein length is borderline ($p = 0.05$)
+and GC content trends higher in the hard group. The strongest length
+effect is on CDS length (Table~\ref{tab:hard}, $p = 0.02$), which is
+not shown as a panel here. Box plots show median, interquartile range,
+and 1.5$\times$IQR whiskers.}
 \label{fig:hard}
 \end{figure}
 

@@ -55,7 +55,7 @@ the comparison is strictly against the AA foundation models:
 | DGEB AA model | F1 (Convergent Enzymes) | Our result vs this |
 |---|---:|:---:|
 | esm2_t36_3B_UR50D (AA-best) | 0.265 | ✅ matched (0.267) |
-| esm3_3B | 0.245 | ✅ |
+| esm3_sm_open_v1 | 0.225 | ✅ |
 | progen2 (best of 4) | 0.165 | ✅ |
 | prot_t5_xl_bfd | 0.243 | ✅ |
 

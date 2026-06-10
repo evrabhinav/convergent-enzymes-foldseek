@@ -1,9 +1,10 @@
 # Nucleotide Transformer (NT v2 250M Multispecies) embeddings on a Colab T4 GPU
 # ==============================================================================
-# NT is a DNA-language foundation model. The DGEB paper reports NT-v2-250M at
-# F1 = 0.506 on Convergent Enzymes Classification (the NA-track SOTA), so
-# adding its embeddings to our Foldseek + AA-LM ensemble is the natural
-# follow-up if we want to engage the NA track too.
+# NT is a DNA-language foundation model. NOTE: DGEB does NOT evaluate NT (or any
+# nucleotide-track model) on Convergent Enzymes Classification; the 0.506 figure
+# sometimes associated with NT is from the separate MIBIG Classification task,
+# not this one. Adding NT embeddings to our Foldseek + AA-LM ensemble is purely
+# an exploratory add-on, and it did not help (see src/phase14_multitrack.py).
 #
 # Inputs come from data/dna_sequences.csv produced by src/fetch_dna.py — that
 # file maps each UniProt ID to its CDS DNA fetched from NCBI EFetch.
