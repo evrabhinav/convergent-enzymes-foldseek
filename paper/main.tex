@@ -63,8 +63,9 @@ Foldseek structural retrieval \citep{vankempen2024foldseek} and a
 small protein-LM majority fallback reaches $F1 = 0.730$ on EC
 Classification (a $+0.050$ improvement) and matches the AA-best
 ceiling on Convergent Enzymes ($F1 = 0.267$ vs $0.265$), with no
-task-specific training and on a CPU laptop with under one hour of
-free Colab GPU time for the two largest language-model embeddings. A
+task-specific training and on a CPU laptop with approximately $30$
+minutes of free Colab GPU time for the two largest language-model
+embeddings. A
 per-query analysis on Convergent Enzymes identifies the dominant
 separator of easy and hard queries: Foldseek's per-hit alignment
 probability (Mann--Whitney $p = 3 \times 10^{-5}$), with CDS length
@@ -116,9 +117,9 @@ This paper makes the following empirical contributions.
       configuration in the $\tau$ sweep with this fallback clears the
       baseline.
 \item On Convergent Enzymes, the same recipe with a 3-LM majority
-      fallback (omitting the weakest LM) reaches $F1 = 0.267$, matching
-      the AA foundation-model baseline ($0.265$) with no training and
-      a single AlphaFold structure per protein.
+      fallback (ESM2-3B + ProstT5 + ESM2-150M) reaches $F1 = 0.267$,
+      matching the AA foundation-model baseline ($0.265$) with no
+      training and a single AlphaFold structure per protein.
 \item To the author's knowledge, this is the first reported Foldseek
       score on either of these DGEB classification tasks: $F1 = 0.238$
       (top-1) on Convergent Enzymes and $F1 = 0.663$ on EC.
@@ -173,7 +174,9 @@ Foldseek 3Di tokens, giving a single model that handles both
 modalities. The Nucleotide Transformer family
 \citep{dallatorre2024nt} and Evo \citep{nguyen2024evo} are nucleotide
 foundation models pretrained on genomic DNA; both are evaluated on
-DGEB.
+DGEB's nucleotide-track tasks (MIBIG Classification, EC DNA
+Classification, ribosomal and operonic tasks), but not on the two AA
+classification tasks examined in this work.
 
 \section{Method}
 
@@ -221,11 +224,11 @@ y^{\text{Foldseek}}_{1}(x) & \text{if } p_{\text{Foldseek}}(x) \geq \tau \\
 \end{cases}
 \end{equation}
 where $\mathcal{M}$ is a task-specific fallback ensemble. For
-Convergent Enzymes, the best validation choice is the 3-LM majority
-$\mathcal{M}_{\text{CE}} = \{\text{ESM2-3B}, \text{ProstT5},
-\text{ESM2-150M}\}$, omitting the much weaker ESM2-35M. For EC
-Classification, where all four LMs are individually competitive (see
-Section~\ref{sec:per-lm}), the best choice is the 4-LM majority
+Convergent Enzymes, the best-tested configuration is the 3-LM
+majority $\mathcal{M}_{\text{CE}} = \{\text{ESM2-3B}, \text{ProstT5},
+\text{ESM2-150M}\}$. For EC Classification, where the LMs are
+individually stronger (see Section~\ref{sec:per-lm}), the best-tested
+configuration is the 4-LM majority
 $\mathcal{M}_{\text{EC}} = \{\text{ESM2-3B}, \text{ProstT5},
 \text{ESM2-150M}, \text{ESM2-35M}\}$. The confidence threshold $\tau$
 is swept in $\{0.3, 0.5, 0.7, 0.9\}$. The best configuration on
@@ -238,8 +241,8 @@ insertion order (i.e., the first model that voted for the tied label).
 
 The full pipeline runs on a 4-core Intel i5-11300H laptop with 16~GB RAM
 and no CUDA GPU. The two large language-model embeddings (ESM2-3B and
-ProstT5) are run on a Google Colab T4 GPU session (under one hour
-total for both models). Foldseek runs in a WSL2 Ubuntu environment
+ProstT5) are run on a Google Colab T4 GPU session (approximately
+$30$ minutes total for both models). Foldseek runs in a WSL2 Ubuntu environment
 on the same laptop. Total wall-clock for the full Convergent Enzymes
 pipeline, including all negative-result experiments, is approximately
 8 hours.
@@ -524,10 +527,10 @@ consistent with the structural-and-mechanistic-convergence paradigm
 identified by \citet{riziotis2025paradigms}: a substantial fraction
 of convergent enzymes do preserve active-site geometry across
 sequence and fold divergence. The remaining cases, where convergence
-is mechanistic-only or reaction-only, are plausibly the ones the
-ensemble misses; Foldseek's $F1 = 0.238$ captures roughly $0.90$ of
-the ESM2-3B baseline ceiling of $0.265$, leaving headroom that the
-LM majority fallback closes.
+is mechanistic-only or reaction-only, are plausibly the ones Foldseek
+misses; the small-LM majority fallback closes the residual gap
+between Foldseek's $F1 = 0.238$ and the $F1 = 0.265$ ESM2-3B
+ceiling.
 
 \paragraph{Why the same recipe spans both tasks.}
 On EC Classification, train and test pairs preserve sequence homology,
@@ -550,13 +553,14 @@ regimes without retuning.
       to the broader DGEB suite (operonic pairs, retrieval, phylogeny)
       requires pipeline changes that the current code does not
       implement.
-\item The ESM2-3B reimplementation here falls short of DGEB's
-      published number for that model on Convergent Enzymes by
-      $0.077$ F1 ($0.188$ vs $0.265$). The gap is a downstream-protocol
-      mismatch; DGEB's evaluation pipeline was not replicated. The
-      ensemble does not depend on closing that gap, because Foldseek
-      dominates in the confident regime and the LM fallback only
-      operates on the low-confidence remainder.
+\item The ESM2-3B reimplementation here under-reproduces DGEB's
+      published numbers on both tasks ($0.188$ vs $0.265$ on
+      Convergent Enzymes, $0.592$ vs $0.680$ on EC). The gap is a
+      downstream-protocol mismatch; DGEB's evaluation pipeline was
+      not replicated. The ensemble result does not depend on closing
+      this gap, because Foldseek dominates the prediction in the
+      confident regime and the LM fallback only operates on the
+      low-confidence remainder.
 \item The nucleotide-modality track is not engaged. DGEB does not
       evaluate nucleotide-track foundation models on either of the
       two AA classification tasks examined here; that comparison is
@@ -582,8 +586,9 @@ confidence-gated small protein-LM majority fallback exceeds the DGEB
 ESM2-3B baseline on EC Classification ($F1 = 0.730$ vs $0.680$) and
 matches it on the homology-removed Convergent Enzymes Classification
 ($F1 = 0.267$ vs $0.265$). The recipe uses no task-specific training,
-runs on a CPU laptop with $30$ minutes of free Colab GPU time for the
-two largest language-model embeddings, and is fully reproducible from
+runs on a CPU laptop with approximately $30$ minutes of free Colab
+GPU time for the two largest language-model embeddings, and is fully
+reproducible from
 public data. The two-task pattern is consistent with the
 structural-and-mechanistic-convergence paradigm of
 \citet{riziotis2025paradigms}: local active-site geometry, accessible
