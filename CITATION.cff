@@ -1,14 +1,15 @@
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
-title: "Foldseek + small LM ensemble crosses the AA-foundation-model baseline on DGEB Convergent Enzymes"
+title: "Structural retrieval and small language models match amino-acid foundation models on DGEB protein classification"
 abstract: >
   Empirical evaluation of structural retrieval (Foldseek) combined with small
-  amino-acid protein language models on the DGEB Convergent Enzymes
-  Classification benchmark. Achieves weighted F1 = 0.2668, crossing the
-  strongest published amino-acid foundation-model baseline (ESM2-3B = 0.265)
-  using a CPU laptop plus ~30 min of free Colab T4 GPU time. Does not address
-  the nucleotide-based foundation models, which set the overall benchmark
-  ceiling well above the AA track.
+  amino-acid protein language models on two DGEB protein classification tasks.
+  On EC Classification it reaches weighted F1 = 0.730 versus the ESM2-3B
+  baseline of 0.680; on Convergent Enzymes Classification it reaches F1 = 0.267,
+  matching the ESM2-3B baseline of 0.265, using a CPU laptop plus roughly one
+  hour of free Colab T4 GPU time. Both tasks are evaluated on amino-acid
+  foundation models only; DGEB does not benchmark nucleotide-track models on
+  them.
 authors:
   - given-names: Abhinav
     family-names: Erraguntla
@@ -30,7 +31,7 @@ keywords:
   - few-shot classification
 preferred-citation:
   type: software
-  title: "Foldseek + small LM ensemble crosses the AA-foundation-model baseline on DGEB Convergent Enzymes"
+  title: "Structural retrieval and small language models match amino-acid foundation models on DGEB protein classification"
   authors:
     - given-names: Abhinav
       family-names: Erraguntla

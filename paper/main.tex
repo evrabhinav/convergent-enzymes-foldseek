@@ -54,24 +54,25 @@ Amino-Acid Foundation Models on DGEB Protein Classification}
 The DGEB protein classification suite \citep{westroberts2024dgeb}
 evaluates amino-acid (AA) foundation models on functional tasks where
 sequence homology is wholly or partially removed between train and
-test. On Convergent Enzymes Classification (400 EC classes, sequence
-homology removed) the strongest published AA foundation model,
-ESM2-3B \citep{lin2023esm2}, reaches a weighted $F1 = 0.265$; on the
-easier homology-preserving EC Classification (128 classes) it reaches
-$F1 = 0.680$. This work shows that a confidence-gated combination of
-Foldseek structural retrieval \citep{vankempen2024foldseek} and a
-small protein-LM majority fallback reaches $F1 = 0.730$ on EC
-Classification (a $+0.050$ improvement) and matches the AA-best
-ceiling on Convergent Enzymes ($F1 = 0.267$ vs $0.265$), with no
-task-specific training and on a CPU laptop with approximately $30$
-minutes of free Colab GPU time for the two largest language-model
-embeddings. A
+test. On Convergent Enzymes Classification (400 Enzyme Commission
+(EC) classes, sequence homology removed) the strongest published AA
+foundation model, ESM2-3B \citep{lin2023esm2}, reaches a weighted
+$F1 = 0.265$; on the easier homology-preserved EC Classification
+(128 classes) it reaches $F1 = 0.680$. This work shows that a
+confidence-gated combination of Foldseek structural retrieval
+\citep{vankempen2024foldseek} and a small protein-LM majority
+fallback reaches $F1 = 0.730$ on EC Classification (a $+0.050$
+improvement) and matches the AA-best ceiling on Convergent Enzymes
+($F1 = 0.267$ vs $0.265$), with no task-specific training and on a
+CPU laptop with approximately one hour of free Colab GPU time for the
+two largest language-model embeddings. A
 per-query analysis on Convergent Enzymes identifies the dominant
 separator of easy and hard queries: Foldseek's per-hit alignment
-probability (Mann--Whitney $p = 3 \times 10^{-5}$), with CDS length
-as a secondary factor ($p = 0.02$). Negative results are also
-reported: pocket-geometry features, spatial 3Di motif counting, and a
-Nucleotide Transformer v1 ensembling attempt all underperform. Code,
+probability (Mann--Whitney $p = 3 \times 10^{-5}$), with
+coding-sequence (CDS) length as a secondary factor ($p = 0.02$).
+Negative results are also reported: pocket-geometry features,
+discrete 3Di motif counting, and a Nucleotide Transformer v1
+ensembling attempt all underperform. Code,
 embeddings, and a fully reproducible pipeline are public.\footnote{\url{https://github.com/evrabhinav/convergent-enzymes-foldseek}}
 \end{abstract}
 
@@ -126,11 +127,13 @@ This paper makes the following empirical contributions.
 \item A per-query analysis on Convergent Enzymes identifies what makes
       queries hard for the AA-track ensemble: Foldseek's per-hit
       probability dominates as a separator ($p = 3 \times 10^{-5}$),
-      with CDS length a secondary factor ($p = 0.02$).
+      with coding-sequence (CDS) length a secondary factor
+      ($p = 0.02$).
 \item Documented negative results: amino-acid sequence features
       (424-D) score $F1 = 0.016$; hand-crafted global structural
       features (100-D) score $0.037$; pocket-geometry features
-      (fpocket, 81-D) score $0.019$; spatial 3Di motif counting scores
+      (fpocket, 81-D) score $0.019$; discrete 3Di motif counting
+      (linear k-mers and spatial pairs/triples) scores
       $\leq 0.073$; Nucleotide Transformer v1 2.5B embeddings in this
       pipeline score $0.008$ alone and reduce the ensemble F1 when
       added.
@@ -182,9 +185,10 @@ classification tasks examined in this work.
 
 \subsection{Data}
 
-This study uses the DGEB \texttt{convergent\_enzymes} dataset
-($2000$ train, $400$ test, $400$ classes) and \texttt{ec\_classification}
-dataset ($512$ train, $128$ test, $128$ classes). For each UniProt ID
+This study uses the DGEB \texttt{convergent\_\allowbreak enzymes}
+dataset ($2000$ train, $400$ test, $400$ classes) and
+\texttt{ec\_\allowbreak classification} dataset
+($512$ train, $128$ test, $128$ classes). For each UniProt ID
 in either split, the AlphaFold predicted structure
 \citep{jumper2021alphafold,varadi2024afdb} is downloaded via the EBI
 API. Coverage is $98.3\%$ on Convergent Enzymes
@@ -241,11 +245,12 @@ insertion order (i.e., the first model that voted for the tied label).
 
 The full pipeline runs on a 4-core Intel i5-11300H laptop with 16~GB RAM
 and no CUDA GPU. The two large language-model embeddings (ESM2-3B and
-ProstT5) are run on a Google Colab T4 GPU session (approximately
-$30$ minutes total for both models). Foldseek runs in a WSL2 Ubuntu environment
-on the same laptop. Total wall-clock for the full Convergent Enzymes
-pipeline, including all negative-result experiments, is approximately
-8 hours.
+ProstT5) are run on a free Google Colab T4 GPU session (approximately
+one hour total: roughly $50$ to $75$ minutes for ESM2-3B including the
+model download, plus about $10$ minutes for ProstT5). Foldseek runs in
+a WSL2 Ubuntu environment on the same laptop. Total wall-clock for the
+full Convergent Enzymes pipeline, including all negative-result
+experiments, is approximately 8 hours.
 
 \section{Results}
 
@@ -275,7 +280,7 @@ Convergent Enzymes Classification & $2000 / 400$ & $0.265$ & $\mathbf{0.267}$ & 
 \begin{subfigure}[t]{0.48\textwidth}
 \centering
 \includegraphics[width=\textwidth]{../charts/ec_classification_crossover.png}
-\caption{DGEB EC Classification ($128$-class, homology-preserved).
+\caption{DGEB EC Classification ($128$-class, homology preserved).
 Every Foldseek + 4-LM-majority configuration in the $\tau$ sweep
 clears the ESM2-3B baseline (dashed line at $0.680$); the best at
 $0.730$.}
@@ -331,7 +336,9 @@ Section~\ref{sec:discussion}.
 \begin{table}[h]
 \centering
 \caption{Ablation on DGEB Convergent Enzymes. Each row is the best
-classifier within that feature/method class.}
+classifier within that feature/method class. LR = logistic
+regression; RF = random forest; SS\% = secondary-structure
+percentages; SASA = solvent-accessible surface area.}
 \label{tab:ablation}
 \begin{tabular}{lrl}
 \toprule
@@ -341,7 +348,7 @@ Random baseline ($1/400$) & $0.003$ & uniform prediction \\
 Amino-acid features (424-D, LR) & $0.016$ & composition + dipeptides + 4 physico-chem \\
 Hand-crafted structural features (100-D, RF) & $0.037$ & SS\%, contacts, geometry, SASA \\
 Pocket-geometry features (81-D, RF) & $0.019$ & fpocket descriptors of top-3 pockets \\
-Spatial 3Di motif counting (best) & $0.073$ & linear 3Di k-mers \citep{vankempen2024foldseek} \\
+3Di motif counting (best, linear k-mers) & $0.073$ & linear 3Di k-mers \citep{vankempen2024foldseek} \\
 ESM2-3B alone (LR) & $0.188$ & this pipeline; DGEB reports $0.265$ \\
 ProstT5 alone (LR) & $0.171$ & AA mode \\
 Foldseek top-1 alone & $0.238$ & no training \\
@@ -362,9 +369,10 @@ A few facts worth noting from Table~\ref{tab:ablation}.
       comes from a different downstream protocol (DGEB's evaluation
       code was not replicated, and per-query predictions have not been
       released). The Foldseek + small-LM ensemble at $F1 = 0.267$
-      exceeds the DGEB-reported number despite the underlying ESM2-3B
-      component being weaker in this pipeline, because the ensemble is
-      dominated by Foldseek in the confident regime and the LM
+      matches the DGEB-reported number (within noise) despite the
+      underlying ESM2-3B component being weaker in this pipeline,
+      because the ensemble is dominated by Foldseek in the confident
+      regime and the LM
       fallback only operates on the low-confidence remainder.
 \item Hand-crafted features that describe the protein as a whole
       (secondary structure percentages, contact-map summaries,
@@ -464,12 +472,12 @@ Three observations.
       Enzymes Classification, so it is not possible to test directly
       whether DNA-context models exploit codon-level signals on this
       task; the observation is reported as a property of the AA-track
-      hard set, not as evidence about NA-track performance.
+      hard set, not as evidence about nucleotide-track performance.
 \end{enumerate}
 
 These properties characterise the difficulty modes of the benchmark
 as seen by the AA-track ensemble and may inform future benchmark
-design or extensions of DGEB's NA track to this task.
+design or extensions of DGEB's nucleotide track to this task.
 
 \subsection{Negative results}
 
@@ -490,7 +498,7 @@ Three motif-counting variants on the 3Di sequences of the training
 proteins were tested: linear k-mers (best $F1 = 0.073$ at $k = 4$,
 in-class-fraction $\geq 3/5$, log-enrichment $\geq \log_2 10$);
 spatial pairs and triples of 3Di letters at residues with $|i-j| \geq 6$
-and $C_\alpha\text{--}C_\alpha \leq 9$~\AA{} (best $F1 = 0.017$);
+and $C_\alpha\text{--}C_\alpha \leq 9$~\AA{} (best $F1 = 0.016$);
 and joint amino-acid$\times$3Di spatial motifs (best $F1 = 0.035$).
 None approaches Foldseek's $F1 = 0.238$. This is attributed to
 Foldseek's local alignment with the empirically trained 3Di
@@ -534,7 +542,7 @@ ceiling.
 
 \paragraph{Why the same recipe spans both tasks.}
 On EC Classification, train and test pairs preserve sequence homology,
-so the natural nearest-neighbour in 3D often is a near-identical
+so the natural nearest-neighbour in 3D is often a near-identical
 protein and Foldseek essentially short-circuits the prediction. The
 ensemble win on EC ($+0.050$ F1) reflects that easier regime. On
 Convergent Enzymes, the nearest neighbour is not necessarily
@@ -586,7 +594,7 @@ confidence-gated small protein-LM majority fallback exceeds the DGEB
 ESM2-3B baseline on EC Classification ($F1 = 0.730$ vs $0.680$) and
 matches it on the homology-removed Convergent Enzymes Classification
 ($F1 = 0.267$ vs $0.265$). The recipe uses no task-specific training,
-runs on a CPU laptop with approximately $30$ minutes of free Colab
+runs on a CPU laptop with approximately one hour of free Colab
 GPU time for the two largest language-model embeddings, and is fully
 reproducible from
 public data. The two-task pattern is consistent with the

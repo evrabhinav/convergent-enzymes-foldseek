@@ -165,7 +165,7 @@ def main():
 
     methods = {
         "Sequence (424)": 0.016,
-        "Structural feat. (100)": 0.060,
+        "Structural feat. (100)": 0.037,
         "Foldseek top-1": 0.2383,
         "FS + ESM2-150M": 0.2520,
         "FS + ProstT5": 0.2543,
@@ -183,7 +183,7 @@ def main():
     ax.axhline(BASELINE, ls="--", color="gray", alpha=0.6,
                label="DGEB ESM2-3B baseline")
     ax.set_ylabel("weighted F1")
-    ax.set_title("Phase 13 — crossover experiments")
+    ax.set_title("Crossover experiments on DGEB Convergent Enzymes")
     ax.set_ylim(0, max(max(methods.values()) * 1.2, 0.4))
     plt.xticks(rotation=10, ha="right", fontsize=8)
     ax.legend()
