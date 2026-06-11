@@ -7,7 +7,7 @@
 % Before submission, wrap the body content in the official MLCB / NeurIPS
 % style file.
 
-\documentclass[10pt,letterpaper]{article}
+\documentclass[11pt,letterpaper]{article}
 
 \usepackage[margin=1in]{geometry}
 \usepackage{microtype}
@@ -39,17 +39,17 @@
 \titlespacing*{\section}{0pt}{1.4ex plus 0.5ex minus 0.2ex}{0.6ex plus 0.2ex}
 \titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus 0.2ex}{0.4ex plus 0.2ex}
 
-% Compact bibliography: set the reference list in a smaller font with tighter
-% inter-entry spacing so the 15 references (several with long author lists)
-% fit within the page budget.
-\renewcommand*{\bibfont}{\small}
-\setlength{\bibsep}{0.2ex plus 0.2ex}
+% MLCB 2026 counts the 8-page limit excluding references, so the
+% bibliography is left at full size. The tweaks below tighten only the
+% vertical space around floats and lists (invisible to readers) so the
+% body content fits the 8-page budget at 11pt.
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
 
-% Slightly tighten the vertical space around floats (tables/figures) to
-% reclaim a few lines without affecting readability.
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+% Absorb tiny residual line overflows (e.g. unbreakable monospace tokens
+% at 11pt) without visibly loosening normal lines.
+\setlength{\emergencystretch}{1em}
 
 \title{Structural Retrieval and Small Language Models Match
 Amino-Acid Foundation Models on DGEB Protein Classification}
@@ -214,8 +214,9 @@ The pipeline has three components.
 \paragraph{Structural retrieval (Foldseek).}
 A Foldseek database is built from the train set, and
 \texttt{easy-search} is run with default parameters
-(\texttt{-s 9.5 -e 10 --max-seqs 50}) and the standard 3Di scoring
-matrix. For each test query, the top-1 hit's EC label is returned.
+(\texttt{-s 9.5}, \texttt{-e 10}, \texttt{--max-seqs 50}) and the
+standard 3Di scoring matrix. For each test query, the top-1 hit's EC
+label is returned.
 Foldseek's per-hit alignment probability \texttt{prob} serves as a
 confidence signal.
 
@@ -353,6 +354,8 @@ classifier within that feature/method class. LR = logistic
 regression; RF = random forest; SS\% = secondary-structure
 percentages; SASA = solvent-accessible surface area.}
 \label{tab:ablation}
+\small
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrl}
 \toprule
 Signal & F1 & Notes \\
@@ -555,15 +558,13 @@ between Foldseek's $F1 = 0.238$ and the $F1 = 0.265$ ESM2-3B
 ceiling.
 
 \paragraph{Why the same recipe spans both tasks.}
-On EC Classification, train and test pairs preserve sequence homology,
-so the natural nearest-neighbour in 3D is often a near-identical
-protein and Foldseek essentially short-circuits the prediction. The
-ensemble win on EC ($+0.050$ F1) reflects that easier regime. On
-Convergent Enzymes, the nearest neighbour is not necessarily
-homologous, but is still the best structurally-similar candidate, and
-the small-LM majority fallback fills in when Foldseek's confidence
-falls below the gating threshold. The single recipe handles both
-regimes without retuning.
+On EC Classification, train and test preserve sequence homology, so
+the nearest structural neighbour is often a near-identical protein and
+Foldseek short-circuits the prediction; the $+0.050$ F1 win reflects
+that easier regime. On Convergent Enzymes the neighbour is not
+necessarily homologous but is still the best structural candidate,
+with the small-LM majority filling in below the gating threshold. One
+recipe handles both regimes without retuning.
 
 \paragraph{Limitations.}
 \begin{itemize}
@@ -577,29 +578,24 @@ regimes without retuning.
       implement.
 \item The ESM2-3B reimplementation here under-reproduces DGEB's
       published numbers on both tasks ($0.188$ vs $0.265$ on
-      Convergent Enzymes, $0.592$ vs $0.680$ on EC). The gap is a
-      downstream-protocol mismatch; DGEB's evaluation pipeline was
-      not replicated. The ensemble result does not depend on closing
-      this gap, because Foldseek dominates the prediction in the
-      confident regime and the LM fallback only operates on the
-      low-confidence remainder.
+      Convergent Enzymes, $0.592$ vs $0.680$ on EC), a
+      downstream-protocol mismatch (DGEB's evaluation pipeline was not
+      replicated). The ensemble result does not depend on closing this
+      gap, as Foldseek dominates in the confident regime.
 \item The nucleotide-modality track is not engaged. DGEB does not
-      evaluate nucleotide-track foundation models on either of the
-      two AA classification tasks examined here; that comparison is
-      outside the scope of this work. The NT v1 ensembling attempt
-      is a negative result, not a contradiction of any DGEB
-      nucleotide-track result.
+      evaluate nucleotide-track models on either task here, so that
+      comparison is out of scope; the NT v1 ensembling attempt is a
+      documented negative result, not a contradiction of any DGEB
+      number.
 \end{itemize}
 
 \paragraph{Future work.} Two natural directions. First, validate the
-Foldseek-as-active-site claim directly against M-CSA
-\citep{ribeiro2018mcsa} catalytic-residue annotations: measure whether
-Foldseek's per-residue 3Di matches preferentially align catalytic
-residues to catalytic residues, which would substantiate the
-Riziotis-style mechanism for why structural retrieval works in the
-homology-removed regime. Second, extend the pipeline to the broader
-DGEB suite, in particular the retrieval and clustering tasks where
-Foldseek-derived structural similarity could plausibly contribute.
+Foldseek-as-active-site mechanism against M-CSA
+\citep{ribeiro2018mcsa} annotations: test whether Foldseek's
+per-residue 3Di matches preferentially align catalytic residues to
+catalytic residues. Second, extend the pipeline to the broader DGEB
+suite, in particular the retrieval and clustering tasks where
+structural similarity could contribute.
 
 \section{Conclusion}
 
@@ -620,12 +616,10 @@ and fold diverge.
 
 \section*{Acknowledgements}
 
-This work was performed as an extension of a course project after the
-course concluded. The author thanks Dr.\ Anna Green for the suggestion
-of MLCB as a venue. The implementation work used a large language
-model (Claude) as a coding partner; the experimental design, choice of
-methods, and interpretation are the author's. All numbers reported
-here can be reproduced from the public repository.
+The author thanks Dr.\ Anna Green for suggesting MLCB as a venue. The
+implementation used a large language model (Claude) as a coding
+partner; the experimental design, choice of methods, and
+interpretation are the author's.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
