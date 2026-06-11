@@ -39,6 +39,18 @@
 \titlespacing*{\section}{0pt}{1.4ex plus 0.5ex minus 0.2ex}{0.6ex plus 0.2ex}
 \titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus 0.2ex}{0.4ex plus 0.2ex}
 
+% Compact bibliography: set the reference list in a smaller font with tighter
+% inter-entry spacing so the 15 references (several with long author lists)
+% fit within the page budget.
+\renewcommand*{\bibfont}{\small}
+\setlength{\bibsep}{0.2ex plus 0.2ex}
+
+% Slightly tighten the vertical space around floats (tables/figures) to
+% reclaim a few lines without affecting readability.
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
 \title{Structural Retrieval and Small Language Models Match
 Amino-Acid Foundation Models on DGEB Protein Classification}
 
@@ -255,6 +267,7 @@ experiments, is approximately 8 hours.
 \section{Results}
 
 \subsection{Main result: two-task generalisation}
+\label{sec:results-main}
 
 Table~\ref{tab:main} reports the best ensemble configuration on each
 of the two DGEB classification tasks against the ESM2-3B AA
@@ -405,10 +418,9 @@ their direct contribution, especially on queries where Foldseek finds
 multiple close hits with similar scores.
 
 The ensemble result is insensitive to the confidence threshold $\tau$
-on both tasks. On EC Classification, $\tau \in \{0.3, 0.5\}$ both
-yield $F1 = 0.7305$ exactly; $\tau = 0.7$ gives $0.7227$ and
-$\tau = 0.9$ gives $0.7214$. On Convergent Enzymes the four thresholds
-span $0.265$ to $0.267$. The recipe is therefore not sensitive to
+on both tasks: the four thresholds span $0.721$ to $0.730$ on EC
+Classification (Section~\ref{sec:results-main}) and $0.265$ to $0.267$
+on Convergent Enzymes. The recipe is therefore not sensitive to
 hyperparameter cherry-picking.
 
 \subsection{Hard-query analysis on Convergent Enzymes}
