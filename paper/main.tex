@@ -2,24 +2,25 @@
 % Foundation-Model Performance on DGEB Enzyme Classification at Laptop Scale
 %
 % Target venue: MLCB 2026 (Machine Learning in Computational Biology).
-% MLCB requests the NeurIPS 2021 style file (neurips_2021.sty, shipped in
-% this directory). Review is single-blind, so the [preprint] option shows
-% the author and removes the review line numbers. The 8-page limit
-% excludes references.
+% MLCB 2026 requires no specific template: standard 11pt font, 1in
+% margins, single column, 8 pages excluding references. This draft
+% already satisfies that, so no porting to a style file is needed.
 
-\documentclass{article}
+\documentclass[11pt,letterpaper]{article}
 
-\usepackage[preprint]{neurips_2021}
-
+\usepackage[margin=1in]{geometry}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{xcolor}
-\usepackage{url}
-\usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{authblk}
+\usepackage{titlesec}
+\usepackage{subcaption}
 
 % Uniform single space after a period (avoids the wide gap LaTeX inserts
 % at sentence-ending periods by default, which also misbehaves at
@@ -33,19 +34,30 @@
   urlcolor=blue!50!black,
 }
 
-% Absorb tiny residual line overflows (e.g. unbreakable monospace tokens)
-% without visibly loosening normal lines.
+% Tighten section spacing
+\titlespacing*{\section}{0pt}{1.4ex plus 0.5ex minus 0.2ex}{0.6ex plus 0.2ex}
+\titlespacing*{\subsection}{0pt}{1.0ex plus 0.4ex minus 0.2ex}{0.4ex plus 0.2ex}
+
+% MLCB 2026 counts the 8-page limit excluding references, so the
+% bibliography is left at full size. The tweaks below tighten only the
+% vertical space around floats and lists (invisible to readers) so the
+% body content fits the 8-page budget at 11pt.
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+
+% Absorb tiny residual line overflows (e.g. unbreakable monospace tokens
+% at 11pt) without visibly loosening normal lines.
 \setlength{\emergencystretch}{1em}
 
 \title{Structural Retrieval with Small Language Models Matches
 Amino-Acid Foundation-Model Performance on DGEB Enzyme Classification
 at Laptop Scale}
 
-\author{%
-  Abhinav Erraguntla\\
-  Independent\\
-  \texttt{evrabhinav@gmail.com}
-}
+\author[1]{Abhinav Erraguntla}
+\affil[1]{Independent}
+
+\date{}
 
 \begin{document}
 \maketitle
